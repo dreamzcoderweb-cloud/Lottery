@@ -1,0 +1,20 @@
+<footer class="content-footer footer bg-footer-theme">
+    <div class="container-xxl">
+        <div
+            class="footer-container d-flex align-items-center justify-content-between py-4 flex-md-row flex-column">
+            <div class="text-body">
+                ©
+                <script>
+                    document.write(new Date().getFullYear());
+                </script>
+                , made with ❤️ by
+                <a href="https://dreamzcoder.com/" target="_blank"
+                    class="footer-link">Dreamcode Technologies</a>
+            </div>
+            <div class="d-none d-lg-inline-block">
+                <a href="https://dreamzcoder.com/contact-us"
+                    target="_blank" class="footer-link">Support</a>
+            </div>
+        </div>
+    </div>
+</footer>

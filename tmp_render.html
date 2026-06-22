@@ -1,0 +1,1606 @@
+<!doctype html>
+
+<html lang="en" class="light-style layout-menu-fixed layout-compact" dir="ltr" data-theme="theme-default"
+    data-assets-path="../assets/" data-template="vertical-menu-template-free" data-style="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+
+    <title>Edit Slot - Super Admin</title>
+
+    <meta name="description" content="" />
+    <meta name="csrf-token" content="">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="http://localhost/assets/img/fav_icon.png">
+
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet" />
+
+    <link rel="stylesheet" href="http://localhost/assets/vendor/fonts/boxicons.css" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="http://localhost/assets/vendor/css/core.css" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="http://localhost/assets/vendor/css/theme-default.css"
+        class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="http://localhost/assets/css/demo.css" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="http://localhost/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+    <link rel="stylesheet" href="http://localhost/assets/vendor/libs/apex-charts/apex-charts.css" />
+
+    <!-- Page CSS -->
+
+    <!-- Helpers -->
+    <script src="http://localhost/assets/vendor/js/helpers.js"></script>
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="http://localhost/assets/js/config.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <!-- datatable css cdn -->
+    <script defer src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+    <script defer src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js"></script>
+    <script defer src="https://cdn.datatables.net/buttons/3.2.0/js/dataTables.buttons.js"></script>
+    <script defer src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.bootstrap5.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script defer src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.html5.min.js"></script>
+    <script defer src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.print.min.js"></script>
+    <script defer src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.colVis.min.js"></script>
+    <!--datatable css cdn-->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.2.0/css/buttons.bootstrap5.css">
+
+    <!-- ckeditor -->
+    <script src="//cdn.ckeditor.com/4.14.0/standard/ckeditor.js"></script>
+    <script>
+        $('.ckeditor').ckeditor();
+    </script>
+
+    <script>
+        var APP_URL = "http:\/\/localhost"
+    </script>
+</head>
+
+<body>
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+        <div class="layout-container">
+            <!-- Menu -->
+            <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+    <div class="app-brand demo">
+        <a href="http://localhost/admin/banners" class="app-brand-link">
+            <img src="http://localhost/assets/img/logo.png" alt="logo" height="28">
+            <span class="app-brand-text demo menu-text fw-bold ms-2">Super Admin</span>
+        </a>
+
+        <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+            <i class="bx bx-chevron-left bx-sm d-flex align-items-center justify-content-center"></i>
+        </a>
+    </div>
+
+    <div class="menu-inner-shadow"></div>
+
+    <ul class="menu-inner py-1">
+        <!-- Dashboard -->
+        <li class="menu-item ">
+            <a href="http://localhost/admin/dashboard" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-home-smile"></i>
+                <div class="text-truncate" data-i18n="Dashboards">Dashboards</div>
+            </a>
+        </li>
+        
+        
+        
+        
+        
+             </ul>
+</aside>
+            <!-- / Menu -->
+
+            <!-- Layout container -->
+            <div class="layout-page">
+                <!-- Navbar -->
+                <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme mb-5"
+id="layout-navbar">
+<div class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 d-xl-none">
+    <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)">
+        <i class="bx bx-menu bx-md"></i>
+    </a>
+</div>
+
+<div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+    <!-- Search -->
+    <div class="navbar-nav align-items-center">
+        <div class="nav-item d-flex align-items-center">
+            <i class="bx bx-search bx-md"></i>
+            <input type="text" class="form-control border-0 shadow-none ps-1 ps-sm-2"
+                placeholder="Search..." aria-label="Search..." />
+        </div>
+    </div>
+    <!-- /Search -->
+
+    <ul class="navbar-nav flex-row align-items-center ms-auto">
+        <!-- Place this tag where you want the button to render. -->
+
+        <!-- User -->
+        <li class="nav-item navbar-dropdown dropdown-user dropdown">
+            <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);"
+                data-bs-toggle="dropdown">
+                <div class="avatar avatar-online">
+                    <img src="http://localhost/assets/img/avatars/1.png" alt="" class="w-px-40 h-auto rounded-circle" />
+                </div>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                    <a class="dropdown-item" href="#">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="avatar avatar-online">
+                                    <img src="http://localhost/assets/img/avatars/1.png" alt="" class="w-px-40 h-auto rounded-circle" />
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">John Doe</h6>
+                                <small class="text-muted">Admin</small>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <div class="dropdown-divider my-1"></div>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="http://localhost/admin/profile">
+                        <i class="bx bx-user bx-md me-3"></i><span>My Profile</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="http://localhost/admin/logout">
+                        <i class="bx bx-power-off bx-md me-3"></i><span>Log Out</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <!--/ User -->
+    </ul>
+</div>
+</nav>
+                <!-- / Navbar -->
+
+                <!-- Content wrapper -->
+                <div class="content-wrapper">
+                    <!-- Content -->
+                    <div class="container-xxl flex-grow-1 container-p-y mx-auto" style="max-width: 75%;">
+        <div class="row">
+        <div class="col-xxl">
+
+            <div class="card mb-6">
+
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0">Edit Slot</h5>
+                </div>
+
+                <div class="card-body">
+
+                    <form id="slotForm"
+                          method="POST"
+                          novalidate
+                          data-is-edit="1"
+                          action="http://localhost/admin/edit_slot/kerala-lottery-3">
+                        <input type="hidden" name="_token" value="" autocomplete="off">
+                        <div class="row mb-4">
+
+                            <div class="col-md-2">
+                                <label class="form-label">Main Title <span class="text-danger">*</span></label>
+                                <input type="text"
+                                       name="main_title"
+                                       class="form-control"
+                                       required
+                                       value="kerala lottery">
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label">Draw Date <span class="text-danger">*</span></label>
+                                <input type="date"
+                                       name="draw_date"
+                                       class="form-control"
+                                       required
+                                      value="2026-06-11"
+                                        readonly>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label">Draw Time <span class="text-danger">*</span></label>
+                                <input type="time"
+                                       name="draw_time"
+                                       class="form-control"
+                                       required
+                                        value="13:43:00"
+                                        readonly>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label">Booking Close time <span class="text-danger">*</span></label>
+                                <input type="time"
+                                       name="booking_close_time"
+                                       class="form-control"
+                                       required
+                                        value="03:43:00"
+                                    readonly>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label">Short Title <span class="text-danger">*</span></label>
+                               <input type="text"
+                                       name="short_title"
+                                       class="form-control"
+                                       required
+                                       value="slot 1">
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label">Title <span class="text-danger">*</span></label>
+                                <input type="hidden" id="title" name="title" value="1,2,3,4">
+                                <select class="form-select" id="title_multi" name="title_multi[]" multiple size="5" required>
+                                    <option value="1">Single Digit</option>
+                                    <option value="2">Double Digit</option>
+                                    <option value="3">Three Digit</option>
+                                    <option value="4">Four Digit</option>
+                                    
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                        <hr>
+
+                        <div id="slotItemsSection" class="">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5>Slot Items</h5>
+                            </div>
+
+                            <div id="slotItemsWrapper">
+                                <div id="slotItemsMultiContainer"></div>
+
+                            <div id="slotItemsServerContainer">
+                                                                                                                                
+                                    <div class="mb-4 slot-title-section" data-title="1">
+                                        <h6 class="mb-3">Slot Items - Single Digit</h6>
+                                                                                    <div class="row mb-3">
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Win Amount <span class="text-danger">*</span></label>
+                                                    <input type="text"
+                                                           name="win_amount_by_title[1]"
+                                                           class="form-control section-win-amount"
+                                                           required
+                                                           value="100.00">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Ticket Amount <span class="text-danger">*</span></label>
+                                                    <input type="text"
+                                                           name="ticket_amt_by_title[1]"
+                                                           class="form-control section-ticket-amount"
+                                                           required
+                                                           value="12.00">
+                                                </div>
+                                            </div>
+                                        
+                                                                                                                            <div class="slot-item row mb-4">
+                                                                                                                                                    <input type="hidden" name="win_amount[]" class="row-win-amount" value="100.00">
+                                                    <input type="hidden" name="ticket_amt[]" class="row-ticket-amount" value="12.00">
+                                                
+                                                <div class="col-md-2">
+                                                    <label>Group Name <span class="text-danger">*</span></label>
+                                                    <input type="hidden" name="slot_item_id[]" value="46">
+                                                    <input type="hidden" name="item_title_count[]" value="1">
+                                                    <input type="text"
+                                                           name="group_name[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="A"
+                                                           placeholder="A">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Digit <span class="text-danger">*</span></label>
+                                                    <input type="number"
+                                                           name="digit[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="4"
+                                                           placeholder="2"
+                                                           maxlength="1">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Color</label>
+                                                    <input type="color"
+                                                           name="color[]"
+                                                           class="form-control"
+                                                           value="#000000">
+                                                </div>
+
+                                                <div class="col-md-2 d-flex align-items-start pt-4">
+                                                    <button type="button" class="btn btn-success addItemBtn me-2">+</button>
+                                                    <button type="button"
+                                                            class="btn btn-danger removeItemBtn"
+                                                            data-item-ids='[46]'>
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                                                                    <div class="slot-item row mb-4">
+                                                                                                                                                    <input type="hidden" name="win_amount[]" class="row-win-amount" value="100.00">
+                                                    <input type="hidden" name="ticket_amt[]" class="row-ticket-amount" value="12.00">
+                                                
+                                                <div class="col-md-2">
+                                                    <label>Group Name <span class="text-danger">*</span></label>
+                                                    <input type="hidden" name="slot_item_id[]" value="47">
+                                                    <input type="hidden" name="item_title_count[]" value="1">
+                                                    <input type="text"
+                                                           name="group_name[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="Q"
+                                                           placeholder="A">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Digit <span class="text-danger">*</span></label>
+                                                    <input type="number"
+                                                           name="digit[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="5"
+                                                           placeholder="2"
+                                                           maxlength="1">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Color</label>
+                                                    <input type="color"
+                                                           name="color[]"
+                                                           class="form-control"
+                                                           value="#000000">
+                                                </div>
+
+                                                <div class="col-md-2 d-flex align-items-start pt-4">
+                                                    <button type="button" class="btn btn-success addItemBtn me-2">+</button>
+                                                    <button type="button"
+                                                            class="btn btn-danger removeItemBtn"
+                                                            data-item-ids='[47]'>
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                                                                    <div class="slot-item row mb-4">
+                                                                                                                                                    <input type="hidden" name="win_amount[]" class="row-win-amount" value="100.00">
+                                                    <input type="hidden" name="ticket_amt[]" class="row-ticket-amount" value="12.00">
+                                                
+                                                <div class="col-md-2">
+                                                    <label>Group Name <span class="text-danger">*</span></label>
+                                                    <input type="hidden" name="slot_item_id[]" value="48">
+                                                    <input type="hidden" name="item_title_count[]" value="1">
+                                                    <input type="text"
+                                                           name="group_name[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="T"
+                                                           placeholder="A">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Digit <span class="text-danger">*</span></label>
+                                                    <input type="number"
+                                                           name="digit[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="4"
+                                                           placeholder="2"
+                                                           maxlength="1">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Color</label>
+                                                    <input type="color"
+                                                           name="color[]"
+                                                           class="form-control"
+                                                           value="#000000">
+                                                </div>
+
+                                                <div class="col-md-2 d-flex align-items-start pt-4">
+                                                    <button type="button" class="btn btn-success addItemBtn me-2">+</button>
+                                                    <button type="button"
+                                                            class="btn btn-danger removeItemBtn"
+                                                            data-item-ids='[48]'>
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                                                                    <div class="slot-item row mb-4">
+                                                                                                                                                    <input type="hidden" name="win_amount[]" class="row-win-amount" value="100.00">
+                                                    <input type="hidden" name="ticket_amt[]" class="row-ticket-amount" value="12.00">
+                                                
+                                                <div class="col-md-2">
+                                                    <label>Group Name <span class="text-danger">*</span></label>
+                                                    <input type="hidden" name="slot_item_id[]" value="62">
+                                                    <input type="hidden" name="item_title_count[]" value="1">
+                                                    <input type="text"
+                                                           name="group_name[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="B"
+                                                           placeholder="A">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Digit <span class="text-danger">*</span></label>
+                                                    <input type="number"
+                                                           name="digit[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="5"
+                                                           placeholder="2"
+                                                           maxlength="1">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Color</label>
+                                                    <input type="color"
+                                                           name="color[]"
+                                                           class="form-control"
+                                                           value="#000000">
+                                                </div>
+
+                                                <div class="col-md-2 d-flex align-items-start pt-4">
+                                                    <button type="button" class="btn btn-success addItemBtn me-2">+</button>
+                                                    <button type="button"
+                                                            class="btn btn-danger removeItemBtn"
+                                                            data-item-ids='[62]'>
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                                                                                                                                            </div>
+                                                                    
+                                    <div class="mb-4 slot-title-section" data-title="2">
+                                        <h6 class="mb-3">Slot Items - Double Digit</h6>
+                                                                                    <div class="row mb-3">
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Win Amount <span class="text-danger">*</span></label>
+                                                    <input type="text"
+                                                           name="win_amount_by_title[2]"
+                                                           class="form-control section-win-amount"
+                                                           required
+                                                           value="300.00">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Ticket Amount <span class="text-danger">*</span></label>
+                                                    <input type="text"
+                                                           name="ticket_amt_by_title[2]"
+                                                           class="form-control section-ticket-amount"
+                                                           required
+                                                           value="15.00">
+                                                </div>
+                                            </div>
+                                        
+                                                                                                                            <div class="slot-item row mb-4">
+                                                                                                                                                    <input type="hidden" name="win_amount[]" class="row-win-amount" value="300.00">
+                                                    <input type="hidden" name="ticket_amt[]" class="row-ticket-amount" value="15.00">
+                                                
+                                                <div class="col-md-2">
+                                                    <label>Group Name <span class="text-danger">*</span></label>
+                                                    <input type="hidden" name="slot_item_id[]" value="50">
+                                                    <input type="hidden" name="item_title_count[]" value="2">
+                                                    <input type="text"
+                                                           name="group_name[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="AA"
+                                                           placeholder="A">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Digit <span class="text-danger">*</span></label>
+                                                    <input type="number"
+                                                           name="digit[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="74"
+                                                           placeholder="2"
+                                                           maxlength="2">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Color</label>
+                                                    <input type="color"
+                                                           name="color[]"
+                                                           class="form-control"
+                                                           value="#000000">
+                                                </div>
+
+                                                <div class="col-md-2 d-flex align-items-start pt-4">
+                                                    <button type="button" class="btn btn-success addItemBtn me-2">+</button>
+                                                    <button type="button"
+                                                            class="btn btn-danger removeItemBtn"
+                                                            data-item-ids='[50]'>
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                                                                    <div class="slot-item row mb-4">
+                                                                                                                                                    <input type="hidden" name="win_amount[]" class="row-win-amount" value="300.00">
+                                                    <input type="hidden" name="ticket_amt[]" class="row-ticket-amount" value="15.00">
+                                                
+                                                <div class="col-md-2">
+                                                    <label>Group Name <span class="text-danger">*</span></label>
+                                                    <input type="hidden" name="slot_item_id[]" value="51">
+                                                    <input type="hidden" name="item_title_count[]" value="2">
+                                                    <input type="text"
+                                                           name="group_name[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="VB"
+                                                           placeholder="A">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Digit <span class="text-danger">*</span></label>
+                                                    <input type="number"
+                                                           name="digit[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="35"
+                                                           placeholder="2"
+                                                           maxlength="2">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Color</label>
+                                                    <input type="color"
+                                                           name="color[]"
+                                                           class="form-control"
+                                                           value="#000000">
+                                                </div>
+
+                                                <div class="col-md-2 d-flex align-items-start pt-4">
+                                                    <button type="button" class="btn btn-success addItemBtn me-2">+</button>
+                                                    <button type="button"
+                                                            class="btn btn-danger removeItemBtn"
+                                                            data-item-ids='[51]'>
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                                                                    <div class="slot-item row mb-4">
+                                                                                                                                                    <input type="hidden" name="win_amount[]" class="row-win-amount" value="300.00">
+                                                    <input type="hidden" name="ticket_amt[]" class="row-ticket-amount" value="15.00">
+                                                
+                                                <div class="col-md-2">
+                                                    <label>Group Name <span class="text-danger">*</span></label>
+                                                    <input type="hidden" name="slot_item_id[]" value="52">
+                                                    <input type="hidden" name="item_title_count[]" value="2">
+                                                    <input type="text"
+                                                           name="group_name[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="QA"
+                                                           placeholder="A">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Digit <span class="text-danger">*</span></label>
+                                                    <input type="number"
+                                                           name="digit[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="74"
+                                                           placeholder="2"
+                                                           maxlength="2">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Color</label>
+                                                    <input type="color"
+                                                           name="color[]"
+                                                           class="form-control"
+                                                           value="#000000">
+                                                </div>
+
+                                                <div class="col-md-2 d-flex align-items-start pt-4">
+                                                    <button type="button" class="btn btn-success addItemBtn me-2">+</button>
+                                                    <button type="button"
+                                                            class="btn btn-danger removeItemBtn"
+                                                            data-item-ids='[52]'>
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                                                                                                                                            </div>
+                                                                    
+                                    <div class="mb-4 slot-title-section" data-title="3">
+                                        <h6 class="mb-3">Slot Items - Three Digit</h6>
+                                        
+                                                                                                                            <div class="slot-item row mb-4">
+                                                                                                                                                    <div class="col-md-2">
+                                                        <label>Win Amount <span class="text-danger">*</span></label>
+                                                        <input type="text"
+                                                               name="win_amount[]"
+                                                               class="form-control"
+                                                               required
+                                                               value="5000.00"
+                                                               placeholder="Win Amount">
+                                                    </div>
+
+                                                    <div class="col-md-2">
+                                                        <label>Ticket Amount <span class="text-danger">*</span></label>
+                                                        <input type="text"
+                                                               name="ticket_amt[]"
+                                                               class="form-control"
+                                                               required
+                                                               value="350.00"
+                                                               placeholder="Ticket Amount">
+                                                    </div>
+                                                
+                                                <div class="col-md-2">
+                                                    <label>Group Name <span class="text-danger">*</span></label>
+                                                    <input type="hidden" name="slot_item_id[]" value="54">
+                                                    <input type="hidden" name="item_title_count[]" value="3">
+                                                    <input type="text"
+                                                           name="group_name[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="AAA"
+                                                           placeholder="A">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Digit <span class="text-danger">*</span></label>
+                                                    <input type="number"
+                                                           name="digit[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="951"
+                                                           placeholder="2"
+                                                           maxlength="3">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Color</label>
+                                                    <input type="color"
+                                                           name="color[]"
+                                                           class="form-control"
+                                                           value="#000000">
+                                                </div>
+
+                                                <div class="col-md-2 d-flex align-items-start pt-4">
+                                                    <button type="button" class="btn btn-success addItemBtn me-2">+</button>
+                                                    <button type="button"
+                                                            class="btn btn-danger removeItemBtn"
+                                                            data-item-ids='[54]'>
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                                                                    <div class="slot-item row mb-4">
+                                                                                                                                                    <div class="col-md-2">
+                                                        <label>Win Amount <span class="text-danger">*</span></label>
+                                                        <input type="text"
+                                                               name="win_amount[]"
+                                                               class="form-control"
+                                                               required
+                                                               value="6500.00"
+                                                               placeholder="Win Amount">
+                                                    </div>
+
+                                                    <div class="col-md-2">
+                                                        <label>Ticket Amount <span class="text-danger">*</span></label>
+                                                        <input type="text"
+                                                               name="ticket_amt[]"
+                                                               class="form-control"
+                                                               required
+                                                               value="375.00"
+                                                               placeholder="Ticket Amount">
+                                                    </div>
+                                                
+                                                <div class="col-md-2">
+                                                    <label>Group Name <span class="text-danger">*</span></label>
+                                                    <input type="hidden" name="slot_item_id[]" value="55">
+                                                    <input type="hidden" name="item_title_count[]" value="3">
+                                                    <input type="text"
+                                                           name="group_name[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="AAA"
+                                                           placeholder="A">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Digit <span class="text-danger">*</span></label>
+                                                    <input type="number"
+                                                           name="digit[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="741"
+                                                           placeholder="2"
+                                                           maxlength="3">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Color</label>
+                                                    <input type="color"
+                                                           name="color[]"
+                                                           class="form-control"
+                                                           value="#000000">
+                                                </div>
+
+                                                <div class="col-md-2 d-flex align-items-start pt-4">
+                                                    <button type="button" class="btn btn-success addItemBtn me-2">+</button>
+                                                    <button type="button"
+                                                            class="btn btn-danger removeItemBtn"
+                                                            data-item-ids='[55]'>
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                                                                    <div class="slot-item row mb-4">
+                                                                                                                                                    <div class="col-md-2">
+                                                        <label>Win Amount <span class="text-danger">*</span></label>
+                                                        <input type="text"
+                                                               name="win_amount[]"
+                                                               class="form-control"
+                                                               required
+                                                               value="7500.00"
+                                                               placeholder="Win Amount">
+                                                    </div>
+
+                                                    <div class="col-md-2">
+                                                        <label>Ticket Amount <span class="text-danger">*</span></label>
+                                                        <input type="text"
+                                                               name="ticket_amt[]"
+                                                               class="form-control"
+                                                               required
+                                                               value="400.00"
+                                                               placeholder="Ticket Amount">
+                                                    </div>
+                                                
+                                                <div class="col-md-2">
+                                                    <label>Group Name <span class="text-danger">*</span></label>
+                                                    <input type="hidden" name="slot_item_id[]" value="56">
+                                                    <input type="hidden" name="item_title_count[]" value="3">
+                                                    <input type="text"
+                                                           name="group_name[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="AAA"
+                                                           placeholder="A">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Digit <span class="text-danger">*</span></label>
+                                                    <input type="number"
+                                                           name="digit[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="652"
+                                                           placeholder="2"
+                                                           maxlength="3">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Color</label>
+                                                    <input type="color"
+                                                           name="color[]"
+                                                           class="form-control"
+                                                           value="#000000">
+                                                </div>
+
+                                                <div class="col-md-2 d-flex align-items-start pt-4">
+                                                    <button type="button" class="btn btn-success addItemBtn me-2">+</button>
+                                                    <button type="button"
+                                                            class="btn btn-danger removeItemBtn"
+                                                            data-item-ids='[56]'>
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                                                                                                                                            </div>
+                                                                    
+                                    <div class="mb-4 slot-title-section" data-title="4">
+                                        <h6 class="mb-3">Slot Items - Four Digit</h6>
+                                                                                    <div class="row mb-3">
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Win Amount <span class="text-danger">*</span></label>
+                                                    <input type="text"
+                                                           name="win_amount_by_title[4]"
+                                                           class="form-control section-win-amount"
+                                                           required
+                                                           value="9000.00">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Ticket Amount <span class="text-danger">*</span></label>
+                                                    <input type="text"
+                                                           name="ticket_amt_by_title[4]"
+                                                           class="form-control section-ticket-amount"
+                                                           required
+                                                           value="750.00">
+                                                </div>
+                                            </div>
+                                        
+                                                                                                                            <div class="slot-item row mb-4">
+                                                                                                                                                    <input type="hidden" name="win_amount[]" class="row-win-amount" value="9000.00">
+                                                    <input type="hidden" name="ticket_amt[]" class="row-ticket-amount" value="750.00">
+                                                
+                                                <div class="col-md-2">
+                                                    <label>Group Name <span class="text-danger">*</span></label>
+                                                    <input type="hidden" name="slot_item_id[]" value="58">
+                                                    <input type="hidden" name="item_title_count[]" value="4">
+                                                    <input type="text"
+                                                           name="group_name[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="QAXX"
+                                                           placeholder="A">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Digit <span class="text-danger">*</span></label>
+                                                    <input type="number"
+                                                           name="digit[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="7854"
+                                                           placeholder="2"
+                                                           maxlength="4">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Color</label>
+                                                    <input type="color"
+                                                           name="color[]"
+                                                           class="form-control"
+                                                           value="#000000">
+                                                </div>
+
+                                                <div class="col-md-2 d-flex align-items-start pt-4">
+                                                    <button type="button" class="btn btn-success addItemBtn me-2">+</button>
+                                                    <button type="button"
+                                                            class="btn btn-danger removeItemBtn"
+                                                            data-item-ids='[58]'>
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                                                                    <div class="slot-item row mb-4">
+                                                                                                                                                    <input type="hidden" name="win_amount[]" class="row-win-amount" value="9000.00">
+                                                    <input type="hidden" name="ticket_amt[]" class="row-ticket-amount" value="750.00">
+                                                
+                                                <div class="col-md-2">
+                                                    <label>Group Name <span class="text-danger">*</span></label>
+                                                    <input type="hidden" name="slot_item_id[]" value="59">
+                                                    <input type="hidden" name="item_title_count[]" value="4">
+                                                    <input type="text"
+                                                           name="group_name[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="XXXX"
+                                                           placeholder="A">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Digit <span class="text-danger">*</span></label>
+                                                    <input type="number"
+                                                           name="digit[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="4546"
+                                                           placeholder="2"
+                                                           maxlength="4">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Color</label>
+                                                    <input type="color"
+                                                           name="color[]"
+                                                           class="form-control"
+                                                           value="#000000">
+                                                </div>
+
+                                                <div class="col-md-2 d-flex align-items-start pt-4">
+                                                    <button type="button" class="btn btn-success addItemBtn me-2">+</button>
+                                                    <button type="button"
+                                                            class="btn btn-danger removeItemBtn"
+                                                            data-item-ids='[59]'>
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                                                                    <div class="slot-item row mb-4">
+                                                                                                                                                    <input type="hidden" name="win_amount[]" class="row-win-amount" value="9000.00">
+                                                    <input type="hidden" name="ticket_amt[]" class="row-ticket-amount" value="750.00">
+                                                
+                                                <div class="col-md-2">
+                                                    <label>Group Name <span class="text-danger">*</span></label>
+                                                    <input type="hidden" name="slot_item_id[]" value="60">
+                                                    <input type="hidden" name="item_title_count[]" value="4">
+                                                    <input type="text"
+                                                           name="group_name[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="ESDC"
+                                                           placeholder="A">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Digit <span class="text-danger">*</span></label>
+                                                    <input type="number"
+                                                           name="digit[]"
+                                                           class="form-control"
+                                                           required
+                                                           value="6512"
+                                                           placeholder="2"
+                                                           maxlength="4">
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label>Color</label>
+                                                    <input type="color"
+                                                           name="color[]"
+                                                           class="form-control"
+                                                           value="#000000">
+                                                </div>
+
+                                                <div class="col-md-2 d-flex align-items-start pt-4">
+                                                    <button type="button" class="btn btn-success addItemBtn me-2">+</button>
+                                                    <button type="button"
+                                                            class="btn btn-danger removeItemBtn"
+                                                            data-item-ids='[60]'>
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                                                                                                                                            </div>
+                                                                                        </div>
+
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-success">
+                                Update Slot
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+$(document).ready(function(){
+
+     let today = new Date().toISOString().split('T')[0];
+
+    $('input[name="draw_date"]').attr('min', today);
+
+    const oldWinAmounts = [];
+    const oldTicketAmounts = [];
+    const oldWinByTitle = [];
+    const oldTicketByTitle = [];
+    const oldSlotItemIds = [];
+    const oldItemTitleCounts = [];
+    const oldGroupNames = [];
+    const oldDigits = [];
+    const oldColors = [];
+
+    function buildSectionAmountsFromServerDom(fieldName) {
+        const values = {};
+        const $container = $('#slotItemsServerContainer');
+        if (!$container.length) return values;
+
+        $container.find(`input[name^="${fieldName}["]`).each(function () {
+            const name = $(this).attr('name') || '';
+            const match = name.match(/\[(\d+)\]/);
+            if (!match) return;
+            const index = match[1];
+            const val = $(this).val();
+            if (val !== undefined && val !== null && String(val).trim() !== '') {
+                values[index] = val;
+            }
+        });
+
+        return values;
+    }
+
+    const serverWinByTitle = buildSectionAmountsFromServerDom('win_amount_by_title');
+    const serverTicketByTitle = buildSectionAmountsFromServerDom('ticket_amt_by_title');
+    const mergedWinByTitle = { ...serverWinByTitle, ...oldWinByTitle };
+    const mergedTicketByTitle = { ...serverTicketByTitle, ...oldTicketByTitle };
+
+    function buildBucketsFromServerDom() {
+        const buckets = {1: [], 2: [], 3: [], 4: [], 5: []};
+        const $container = $('#slotItemsServerContainer');
+        if (!$container.length) return buckets;
+
+        const $groups = $container.find('input[name="group_name[]"]');
+        const $digits = $container.find('input[name="digit[]"]');
+        const $colors = $container.find('input[name="color[]"]');
+        const $wins = $container.find('input[name="win_amount[]"]');
+        const $tickets = $container.find('input[name="ticket_amt[]"]');
+        const $tcs = $container.find('input[name="item_title_count[]"]');
+        const $ids = $container.find('input[name="slot_item_id[]"]');
+
+        const max = Math.max($groups.length, $digits.length, $colors.length, $wins.length, $tickets.length, $tcs.length, $ids.length);
+        for (let i = 0; i < max; i++) {
+            const tc = parseInt(String($tcs.eq(i).val() || ''), 10);
+            if (![1, 2, 3, 4, 5].includes(tc)) continue;
+
+            const winAmount = $wins.eq(i).val() || '';
+            const ticketAmt = $tickets.eq(i).val() || '';
+            const group = $groups.eq(i).val() || '';
+            const digit = $digits.eq(i).val() || '';
+            const colorRaw = $colors.eq(i).val() || '';
+            const color = String(colorRaw).trim() || '#000000';
+            const colorVal = /^#?[0-9a-fA-F]{6}$/.test(color) ? ('#' + color.replace(/^#/, '')) : '#000000';
+            const id = $ids.eq(i).val() || '';
+
+            buckets[tc].push({ id, winAmount, ticketAmt, group, digit, color: colorVal });
+        }
+
+        return buckets;
+    }
+
+    const oldBuckets = (function buildOldBuckets() {
+        const domBuckets = buildBucketsFromServerDom();
+        const hasOldData = (oldGroupNames?.length || 0) + (oldDigits?.length || 0) + (oldColors?.length || 0) + (oldWinAmounts?.length || 0) + (oldTicketAmounts?.length || 0) + (oldItemTitleCounts?.length || 0) + (oldSlotItemIds?.length || 0) > 0;
+        if (!hasOldData) {
+            return domBuckets;
+        }
+
+        const buckets = {1: [], 2: [], 3: [], 4: [], 5: []};
+        const max = Math.max(
+            oldGroupNames?.length || 0,
+            oldDigits?.length || 0,
+            oldColors?.length || 0,
+            oldWinAmounts?.length || 0,
+            oldTicketAmounts?.length || 0,
+            oldItemTitleCounts?.length || 0,
+            oldSlotItemIds?.length || 0,
+        );
+
+        for (let i = 0; i < max; i++) {
+            const tc = parseInt(String(oldItemTitleCounts?.[i] ?? ''), 10);
+            if (![1, 2, 3, 4, 5].includes(tc)) continue;
+
+            const winAmount = oldWinAmounts?.[i] ?? '';
+            const ticketAmt = oldTicketAmounts?.[i] ?? '';
+            const group = oldGroupNames?.[i] ?? '';
+            const digit = oldDigits?.[i] ?? '';
+            const colorRaw = oldColors?.[i] ?? '';
+            const color = String(colorRaw || '').trim() || '#000000';
+            const colorVal = /^#?[0-9a-fA-F]{6}$/.test(color) ? ('#' + color.replace(/^#/, '')) : '#000000';
+            const id = oldSlotItemIds?.[i] ?? '';
+
+            buckets[tc].push({ id, winAmount, ticketAmt, group, digit, color: colorVal });
+        }
+
+        return buckets;
+    })();
+
+    function getTitleCount() {
+        const raw = String($('#title').val() || '');
+        const parts = raw
+            .split(',')
+            .map(v => String(v).trim())
+            .filter(v => v !== '');
+        return parts.length;
+    }
+
+    function syncTitleFromMulti() {
+        const selected = $('#title_multi').val() || [];
+        const normalized = selected
+            .map(v => String(v).trim())
+            .filter(v => v !== '')
+            .map(v => parseInt(v, 10))
+            .filter(v => [1, 2, 3, 4, 5].includes(v))
+            .filter((v, idx, arr) => arr.indexOf(v) === idx)
+            .sort((a, b) => a - b);
+
+        $('#title').val(normalized.join(','));
+    }
+
+    function renderSelectedTitleSections() {
+        const selected = $('#title_multi').val() || [];
+
+        if (!selected.length) {
+            $('#slotItemsMultiContainer').empty();
+            $('#slotItemsSection').addClass('d-none');
+            return;
+        }
+
+        $('#slotItemsSection').removeClass('d-none');
+        const cursors = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+
+        const labels = {
+            1: 'Single Digit',
+            2: 'Double Digit',
+            3: 'Three Digit',
+            4: 'Four Digit',
+            5: 'Five Digit',
+        };
+
+        let html = '';
+        selected.forEach(function (val) {
+            const count = parseInt(String(val), 10);
+            if (![1, 2, 3, 4, 5].includes(count)) return;
+
+            const titleText = labels[count] || `Title ${count}`;
+            const winVal = mergedWinByTitle[count] ?? '';
+            const ticketVal = mergedTicketByTitle[count] ?? '';
+            const sectionAmountsHtml = count === 3 ? '' : `
+                <div class="row mb-3">
+                    <div class="col-md-2">
+                        <label class="form-label">Win Amount <span class="text-danger">*</span></label>
+                        <input type="text" name="win_amount_by_title[${count}]" class="form-control section-win-amount" value="${String(winVal).replace(/"/g, '&quot;')}" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Ticket Amount <span class="text-danger">*</span></label>
+                        <input type="text" name="ticket_amt_by_title[${count}]" class="form-control section-ticket-amount" value="${String(ticketVal).replace(/"/g, '&quot;')}" required>
+                    </div>
+                </div>`;
+
+            html += `
+                <div class="mb-4 slot-title-section" data-title="${count}">
+                    <h6 class="mb-3">Slot Items - ${titleText}</h6>
+                    ${sectionAmountsHtml}
+                    ${buildSlotItemsHtml(count, cursors)}
+                </div>
+            `;
+        });
+
+        $('#slotItemsMultiContainer').html(html);
+        syncSectionHiddenAmounts();
+    }
+
+    function buildSlotItemsHtml(count, cursors) {
+        let html = '';
+        const bucket = oldBuckets[count] || [];
+        const rowsToShow = Math.max(3, bucket.length);
+        for (let r = 0; r < rowsToShow; r++) {
+            const pos = (cursors && Number.isInteger(cursors[count])) ? cursors[count] : 0;
+            const existing = bucket[pos] || null;
+            if (cursors && Number.isInteger(cursors[count])) cursors[count]++;
+            const idVal = existing ? (existing.id ?? '') : '';
+            const winVal = existing ? (existing.winAmount ?? '') : '';
+            const ticketVal = existing ? (existing.ticketAmt ?? '') : '';
+            const gVal = existing ? (existing.group ?? '') : '';
+            const dVal = existing ? (existing.digit ?? '') : '';
+            const cVal = existing ? (existing.color ?? '#000000') : '#000000';
+            const itemIds = idVal ? JSON.stringify([idVal]) : '[]';
+            const amountFieldsHtml = count === 3 ? `
+                    <div class="col-md-2">
+                        <label>Win Amount <span class="text-danger">*</span></label>
+                        <input type="text" name="win_amount[]" class="form-control" placeholder="Win Amount" value="${String(winVal).replace(/"/g, '&quot;')}" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label>Ticket Amount <span class="text-danger">*</span></label>
+                        <input type="text" name="ticket_amt[]" class="form-control" placeholder="Ticket Amount" value="${String(ticketVal).replace(/"/g, '&quot;')}" required>
+                    </div>` : `
+                    <input type="hidden" name="win_amount[]" class="row-win-amount" value="${String(mergedWinByTitle[count] ?? '').replace(/"/g, '&quot;')}">
+                    <input type="hidden" name="ticket_amt[]" class="row-ticket-amount" value="${String(mergedTicketByTitle[count] ?? '').replace(/"/g, '&quot;')}">`;
+
+            html += `
+                <div class="slot-item row mb-4">
+                    ${amountFieldsHtml}
+                    <div class="col-md-2">
+                        <label>Group Name <span class="text-danger">*</span></label>
+                        <input type="hidden" name="slot_item_id[]" value="${String(idVal).replace(/"/g, '&quot;')}">
+                        <input type="hidden" name="item_title_count[]" value="${count}">
+                        <input type="text" name="group_name[]" class="form-control" placeholder="Group Name" value="${String(gVal).replace(/"/g, '&quot;')}" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label>Digit <span class="text-danger">*</span></label>
+                        <input type="number" name="digit[]" class="form-control" placeholder="Digit" maxlength="${count}" value="${String(dVal).replace(/"/g, '&quot;')}" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label>Color</label>
+                        <input type="color" name="color[]" class="form-control" value="${String(cVal).replace(/"/g, '&quot;')}">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-start pt-4">
+                        <button type="button" class="btn btn-success addItemBtn me-2">+</button>
+                        <button type="button" class="btn btn-danger removeItemBtn" data-item-ids='${itemIds}'>Remove</button>
+                    </div>
+                </div>`;
+        }
+        return html;
+    }
+
+    function updateHiddenSectionInputs() {
+        const slotItemsHidden = $('#slotItemsSection').hasClass('d-none');
+        $('#slotItemsSection').find('input, select, textarea').prop('disabled', slotItemsHidden);
+
+        const serverContainerHidden = $('#slotItemsServerContainer').is(':hidden');
+        $('#slotItemsServerContainer').find('input, select, textarea').prop('disabled', serverContainerHidden);
+    }
+
+    function syncSectionHiddenAmounts() {
+        $('.slot-title-section').each(function () {
+            const $section = $(this);
+            const title = parseInt(String($section.data('title') || ''), 10);
+            if (title === 3) return;
+
+            const win = $section.find('.section-win-amount').first().val() || '';
+            const ticket = $section.find('.section-ticket-amount').first().val() || '';
+            $section.find('.row-win-amount').val(win);
+            $section.find('.row-ticket-amount').val(ticket);
+        });
+    }
+
+    function toggleSlotItemsSection() {
+        const count = getTitleCount();
+        if (count > 0) {
+            $('#slotItemsSection').removeClass('d-none');
+        } else {
+            $('#slotItemsSection').addClass('d-none');
+        }
+        updateHiddenSectionInputs();
+    }
+
+    function clearValidationErrors() {
+        $('#slotForm .is-invalid').removeClass('is-invalid');
+        $('#slotForm .validation-error').remove();
+    }
+
+    function showFieldError(fieldKey, message) {
+        // Laravel may send: main_title, draw_time, group_name.0, digit.1, etc.
+        const parts = String(fieldKey).split('.');
+        const base = parts[0];
+        const index = (parts.length > 1 && parts[1] !== '') ? parseInt(parts[1], 10) : null;
+
+        let $input = $('#slotForm').find(`[name="${base}"]`);
+
+        if (!$input.length) {
+            // Handle bracket style inputs if the backend returns one.
+            if (Number.isInteger(index) && index >= 0) {
+                $input = $('#slotForm').find(`[name="${base}[${index}]"]`);
+            }
+        }
+
+        if (!$input.length) {
+            // For array inputs in blade: name="group_name[]"
+            const arrayName = `${base}[]`;
+            const $inputs = $('#slotForm').find(`[name="${arrayName}"]`);
+            if ($inputs.length) {
+                $input = (Number.isInteger(index) && index >= 0) ? $inputs.eq(index) : $inputs.first();
+            }
+        }
+
+        if (!$input.length) return;
+
+        $input.addClass('is-invalid');
+        const $error = $(`<div class="text-danger small mt-1 validation-error"></div>`).text(message);
+        $error.insertAfter($input);
+    }
+
+    // Remove error once user edits the field
+    $(document).on('input change', '#slotForm input, #slotForm select, #slotForm textarea', function () {
+        $(this).removeClass('is-invalid');
+        $(this).siblings('.validation-error').remove();
+        $(this).next('.validation-error').remove();
+    });
+
+    $(document).on('input change', '.section-win-amount, .section-ticket-amount', function () {
+        syncSectionHiddenAmounts();
+    });
+
+    // Slot items show/hide based on Title (multi-select)
+    $('#title_multi').on('change', function () {
+        syncTitleFromMulti();
+        toggleSlotItemsSection();
+        const isEdit = String($('#slotForm').data('is-edit') || '0') === '1';
+        $('#slotItemsServerContainer').hide();
+        renderSelectedTitleSections();
+        updateHiddenSectionInputs();
+    });
+
+    // Initialize multi-select from hidden title value
+    (function initTitleMulti() {
+        const isEdit = String($('#slotForm').data('is-edit') || '0') === '1';
+        const current = String($('#title').val() || '');
+        const parts = current
+            .split(',')
+            .map(v => String(v).trim())
+            .filter(v => v !== '')
+            .map(v => parseInt(v, 10))
+            .filter(v => [1, 2, 3, 4, 5].includes(v))
+            .map(v => String(v));
+
+        if (parts.length) $('#title_multi').val(parts);
+        syncTitleFromMulti();
+        if (isEdit) return;
+        $('#slotItemsServerContainer').hide();
+        renderSelectedTitleSections();
+        updateHiddenSectionInputs();
+    })();
+    toggleSlotItemsSection();
+
+    // Add items dynamically
+    $(document).on('click', '.addItemBtn', function(){
+        const $currentRow = $(this).closest('.slot-item');
+        const count = parseInt($currentRow.find('input[name="item_title_count[]"]').val(), 10) || 1;
+        const $section = $currentRow.closest('.slot-title-section');
+
+        let winVal = '';
+        let ticketVal = '';
+        if (count !== 3) {
+            winVal = $section.find('.section-win-amount').first().val() || '';
+            ticketVal = $section.find('.section-ticket-amount').first().val() || '';
+        }
+
+        const amountFieldsHtml = count === 3 ? `
+            <div class="col-md-2">
+                <label>Win Amount <span class="text-danger">*</span></label>
+                <input type="text" name="win_amount[]" class="form-control" placeholder="Win Amount" required>
+            </div>
+            <div class="col-md-2">
+                <label>Ticket Amount <span class="text-danger">*</span></label>
+                <input type="text" name="ticket_amt[]" class="form-control" placeholder="Ticket Amount" required>
+            </div>` : `
+            <input type="hidden" name="win_amount[]" class="row-win-amount" value="${String(winVal).replace(/"/g, '&quot;')}">
+            <input type="hidden" name="ticket_amt[]" class="row-ticket-amount" value="${String(ticketVal).replace(/"/g, '&quot;')}">`;
+
+        const newRowHtml = `
+            <div class="slot-item row mb-4">
+                ${amountFieldsHtml}
+                <div class="col-md-2">
+                    <label>Group Name <span class="text-danger">*</span></label>
+                    <input type="hidden" name="slot_item_id[]" value="">
+                    <input type="hidden" name="item_title_count[]" value="${count}">
+                    <input type="text" name="group_name[]" class="form-control" placeholder="Group Name" required>
+                </div>
+                <div class="col-md-2">
+                    <label>Digit <span class="text-danger">*</span></label>
+                    <input type="number" name="digit[]" class="form-control" placeholder="Digit" maxlength="${count}" required>
+                </div>
+                <div class="col-md-2">
+                    <label>Color</label>
+                    <input type="color" name="color[]" class="form-control" value="#000000">
+                </div>
+                <div class="col-md-2 d-flex align-items-start pt-4">
+                    <button type="button" class="btn btn-success addItemBtn me-2">+</button>
+                    <button type="button" class="btn btn-danger removeItemBtn" data-item-ids='[]'>Remove</button>
+                </div>
+            </div>`;
+
+        $currentRow.after(newRowHtml);
+    });
+
+    //  Removeitems
+    $(document).on('click', '.removeItemBtn', function(){
+
+    const row = $(this).closest('.slot-item');
+
+    const itemIds = $(this).data('item-ids');
+
+    // Confirmation Popup
+    if(!confirm('Are you sure you want to remove this item?')){
+        return;
+    }
+
+    if(itemIds && Array.isArray(itemIds) && itemIds.length){
+
+        const requests = itemIds.map(function (id) {
+            return $.ajax({
+
+                url: "http://localhost/admin/delete_slot_item/:id"
+                        .replace(':id', id),
+
+                type: "POST",
+
+                data: {
+                    _token: ""
+                }
+
+            });
+        });
+
+        $.when.apply($, requests).done(function () {
+            row.remove();
+            location.reload();
+        }).fail(function () {
+            alert('Failed to remove item. Please try again.');
+        });
+
+        return;
+    }
+
+    row.remove();
+
+    });
+
+
+    // Submit Form
+    $('#slotForm').submit(function(e){
+
+        e.preventDefault();
+        clearValidationErrors();
+        syncSectionHiddenAmounts();
+
+        $.ajax({
+
+            url: $('#slotForm').attr('action'),
+            type: "POST",
+            data: $(this).serialize(),
+
+            success: function(response){
+
+                if(response.status == true){
+
+
+
+                    $('#slotForm')[0].reset();
+
+                    window.location.href = "http://localhost/admin/slots";
+                }
+            },
+
+            error: function(xhr){
+
+                const errors = xhr.responseJSON && xhr.responseJSON.errors ? xhr.responseJSON.errors : null;
+                if (!errors) {
+                    alert('Something went wrong. Please try again.');
+                    return;
+                }
+
+                let firstErrorInput = null;
+
+                $.each(errors, function(key, value){
+                    const message = Array.isArray(value) ? value[0] : value;
+                    showFieldError(key, message);
+
+                    if (!firstErrorInput) {
+                        // Try to focus the first invalid field
+                        const parts = String(key).split('.');
+                        const base = parts[0];
+                        const index = (parts.length > 1 && parts[1] !== '') ? parseInt(parts[1], 10) : null;
+
+                        let $input = $('#slotForm').find(`[name="${base}"]`);
+                        if (!$input.length) {
+                            if (Number.isInteger(index) && index >= 0) {
+                                $input = $('#slotForm').find(`[name="${base}[${index}]"]`);
+                            }
+                        }
+                        if (!$input.length) {
+                            const arrayName = `${base}[]`;
+                            const $inputs = $('#slotForm').find(`[name="${arrayName}"]`);
+                            if ($inputs.length) {
+                                $input = (Number.isInteger(index) && index >= 0) ? $inputs.eq(index) : $inputs.first();
+                            }
+                        }
+                        if ($input.length) firstErrorInput = $input;
+                    }
+                });
+
+                if (firstErrorInput) {
+                    firstErrorInput.trigger('focus');
+                }
+            }
+
+        });
+
+    });
+
+});
+
+</script>
+                    <!-- / Content -->
+
+                    <!-- Footer -->
+                    <footer class="content-footer footer bg-footer-theme">
+    <div class="container-xxl">
+        <div
+            class="footer-container d-flex align-items-center justify-content-between py-4 flex-md-row flex-column">
+            <div class="text-body">
+                ©
+                <script>
+                    document.write(new Date().getFullYear());
+                </script>
+                , made with ❤️ by
+                <a href="https://dreamzcoder.com/" target="_blank"
+                    class="footer-link">Dreamcode Technologies</a>
+            </div>
+            <div class="d-none d-lg-inline-block">
+                <a href="https://dreamzcoder.com/contact-us"
+                    target="_blank" class="footer-link">Support</a>
+            </div>
+        </div>
+    </div>
+</footer>
+                    <!-- / Footer -->
+
+                    <div class="content-backdrop fade"></div>
+                </div>
+                <!-- Content wrapper -->
+            </div>
+            <!-- / Layout page -->
+        </div>
+
+        <!-- Overlay -->
+        <div class="layout-overlay layout-menu-toggle"></div>
+    </div>
+    <!-- / Layout wrapper -->
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel1">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                    <form id="deleteForm" method="POST" action="">
+                        <input type="hidden" name="_token" value="" autocomplete="off">                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Core JS -->
+    <!-- build:js assets/vendor/js/core.js -->
+
+    <script src="http://localhost/assets/vendor/libs/jquery/jquery.js"></script>
+    <script src="http://localhost/assets/vendor/libs/popper/popper.js"></script>
+    <script src="http://localhost/assets/vendor/js/bootstrap.js"></script>
+    <script src="http://localhost/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+    <script src="http://localhost/assets/vendor/js/menu.js"></script>
+
+    <!-- custom JS -->
+    <script src="http://localhost/assets/js/custom-js/banner.js"></script>
+    <script src="http://localhost/assets/js/custom-js/staff.js"></script>
+    <script src="http://localhost/assets/js/custom-js/roles.js"></script>
+    <script src="http://localhost/assets/js/custom-js/customer.js"></script>
+    <script src="http://localhost/assets/js/custom-js/service.js"></script>
+    <script src="http://localhost/assets/js/custom-js/blog.js"></script>
+    <script src="http://localhost/assets/js/custom-js/contact_enquiries.js"></script>
+    <script src="http://localhost/assets/js/custom-js/newsletter_subscription.js"></script>
+    <script src="http://localhost/assets/js/custom-js/slot.js"></script>
+
+    <!-- endbuild -->
+
+    <!-- Vendors JS -->
+    <script src="http://localhost/assets/vendor/libs/apex-charts/apexcharts.js"></script>
+
+    <!-- Main JS -->
+    <script src="http://localhost/assets/js/main.js"></script>
+
+    <!-- Page JS -->
+    <script src="http://localhost/assets/js/dashboards-analytics.js"></script>
+
+    <!-- Place this tag before closing body tag for github widget button. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+
+</html>
