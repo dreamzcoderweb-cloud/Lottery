@@ -157,7 +157,9 @@ class SlotController extends Controller
     }
 
     public function index(){
-    $slots = Slot::with('items')->get();
+   $slots = Slot::with('items')
+    ->orderBy('slot_id', 'desc')
+    ->get();
 
     return view('slots.view', compact('slots'));
     }
