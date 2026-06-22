@@ -168,7 +168,7 @@
                         uksort($groupedWinners, function ($a, $b) {
                             $aIsNumeric = is_numeric($a);
                             $bIsNumeric = is_numeric($b);
-                            
+
                             if ($aIsNumeric && !$bIsNumeric) {
                                 return 1;
                             }
@@ -369,13 +369,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Back Button at Bottom -->
-        <div class="mb-3">
-            <a href="{{ route('admin.reports.winningsslots') }}" class="btn btn-outline-secondary">
-                <i class="bx bx-arrow-back"></i> Back to Report
-            </a>
         </div>
     </div>
 @endsection
