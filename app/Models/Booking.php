@@ -20,6 +20,9 @@ class Booking extends Model
         'close_time',
         'is_winner',
         'win_amount',
+        'first_price_flag',
+        'second_price_flag',
+        'third_price_flag',
     ];
 
     protected $primaryKey = 'booking_id';

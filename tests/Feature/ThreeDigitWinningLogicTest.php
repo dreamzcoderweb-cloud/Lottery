@@ -110,6 +110,7 @@ class ThreeDigitWinningLogicTest extends TestCase
         $booking->refresh();
         $this->assertEquals('true', $booking->is_winner);
         $this->assertEquals(6000, $booking->win_amount);
+        $this->assertEquals('true', $booking->first_price_flag);
 
         // Verify Wallet balance is 1000 (initial) + 6000 = 7000
         $wallet = WalletRecharge::where('customer_id', $this->customer->customer_id)->first();
@@ -160,6 +161,7 @@ class ThreeDigitWinningLogicTest extends TestCase
         $booking->refresh();
         $this->assertEquals('true', $booking->is_winner);
         $this->assertEquals(2000, $booking->win_amount);
+        $this->assertEquals('true', $booking->second_price_flag);
     }
 
     public function test_third_prize_logic_matches_last_digit(): void
@@ -197,6 +199,7 @@ class ThreeDigitWinningLogicTest extends TestCase
         $booking->refresh();
         $this->assertEquals('true', $booking->is_winner);
         $this->assertEquals(3000, $booking->win_amount);
+        $this->assertEquals('true', $booking->third_price_flag);
     }
 
     public function test_loss_logic_no_digits_matching(): void
@@ -309,5 +312,100 @@ class ThreeDigitWinningLogicTest extends TestCase
         $booking2->refresh();
         $this->assertEquals('false', $booking2->is_winner);
         $this->assertEquals(0.00, $booking2->win_amount);
+    }
+
+    public function test_three_digit_price_flags_are_assigned_for_first_three_winners(): void
+    {
+        Sanctum::actingAs($this->customer);
+
+        // Booking 1: Wins first price (123)
+        $booking1 = Booking::create([
+            'customer_id' => $this->customer->customer_id,
+            'slot_id' => $this->slot->slot_id,
+            'slot_items_id' => $this->slotItem->slot_items_id,
+            'title_id' => 3,
+            'digits' => 123,
+            'qty' => 1,
+            'amount' => 200.00,
+            'status' => 'success',
+            'booking_time' => '10:00:00',
+            'close_time' => '12:00:00',
+            'payment_status' => 'paid',
+        ]);
+
+        // Booking 2: Wins second price (523)
+        $booking2 = Booking::create([
+            'customer_id' => $this->customer->customer_id,
+            'slot_id' => $this->slot->slot_id,
+            'slot_items_id' => $this->slotItem->slot_items_id,
+            'title_id' => 3,
+            'digits' => 523,
+            'qty' => 1,
+            'amount' => 200.00,
+            'status' => 'success',
+            'booking_time' => '10:00:00',
+            'close_time' => '12:00:00',
+            'payment_status' => 'paid',
+        ]);
+
+        // Booking 3: Wins third price (563)
+        $booking3 = Booking::create([
+            'customer_id' => $this->customer->customer_id,
+            'slot_id' => $this->slot->slot_id,
+            'slot_items_id' => $this->slotItem->slot_items_id,
+            'title_id' => 3,
+            'digits' => 563,
+            'qty' => 1,
+            'amount' => 200.00,
+            'status' => 'success',
+            'booking_time' => '10:00:00',
+            'close_time' => '12:00:00',
+            'payment_status' => 'paid',
+        ]);
+
+        // Booking 4: Wins third price (563) - 4th winner (no flag)
+        $booking4 = Booking::create([
+            'customer_id' => $this->customer->customer_id,
+            'slot_id' => $this->slot->slot_id,
+            'slot_items_id' => $this->slotItem->slot_items_id,
+            'title_id' => 3,
+            'digits' => 563,
+            'qty' => 1,
+            'amount' => 200.00,
+            'status' => 'success',
+            'booking_time' => '10:00:00',
+            'close_time' => '12:00:00',
+            'payment_status' => 'paid',
+        ]);
+
+        $response = $this->getJson('/api/v1/tickets/result');
+        $response->assertStatus(200);
+
+        $winners = $response->json('winners');
+        $this->assertCount(4, $winners);
+
+        // Booking 1 should have first_price_flag
+        $this->assertEquals($booking1->booking_id, $winners[0]['booking_id']);
+        $this->assertTrue($winners[0]['first_price_flag'] ?? false);
+        $this->assertArrayNotHasKey('second_price_flag', $winners[0]);
+        $this->assertArrayNotHasKey('third_price_flag', $winners[0]);
+
+        // Booking 2 should have second_price_flag
+        $this->assertEquals($booking2->booking_id, $winners[1]['booking_id']);
+        $this->assertTrue($winners[1]['second_price_flag'] ?? false);
+        $this->assertArrayNotHasKey('first_price_flag', $winners[1]);
+        $this->assertArrayNotHasKey('third_price_flag', $winners[1]);
+
+        // Booking 3 should have third_price_flag
+        $this->assertEquals($booking3->booking_id, $winners[2]['booking_id']);
+        $this->assertTrue($winners[2]['third_price_flag'] ?? false);
+        $this->assertArrayNotHasKey('first_price_flag', $winners[2]);
+        $this->assertArrayNotHasKey('second_price_flag', $winners[2]);
+
+        // Booking 4 should have no price flags
+        $this->assertEquals($booking4->booking_id, $winners[3]['booking_id']);
+        $this->assertArrayNotHasKey('first_price_flag', $winners[3]);
+        $this->assertArrayNotHasKey('second_price_flag', $winners[3]);
+        $this->assertArrayNotHasKey('third_price_flag', $winners[3]);
     }
 }

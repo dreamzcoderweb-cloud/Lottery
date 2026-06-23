@@ -10,15 +10,19 @@ use App\Models\SlotItem;
 class SlotController extends Controller
 {
     public function index()
-    {
-        $slots = Slot::with([
-        'items:slot_id,win_amount,ticket_amt'])->where('status', 'Active')->get();
+{
+    $slots = Slot::with([
+            'items:slot_id,win_amount,ticket_amt'
+        ])
+        ->where('status', 'Active')
+        ->whereDate('draw_date', today())
+        ->get();
 
-        return response()->json([
-            'message' => 'Available slots retrieved successfully',
-            'slots' => $slots,
-        ]);
-    }
+    return response()->json([
+        'message' => 'Available slots retrieved successfully',
+        'slots' => $slots,
+    ]);
+}
 
     public function show($id)
     {

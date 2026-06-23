@@ -636,6 +636,7 @@ class BookingController extends Controller
     $winningBookings = [];
     $expiredSlots = [];
     $expiredSlotIds = [];
+    $threeDigitCount = 0;
 
     $currentDateTime = Carbon::now('Asia/Kolkata');
     $currentDate = $currentDateTime->format('Y-m-d');
@@ -728,14 +729,17 @@ class BookingController extends Controller
 
                     if ($bookingDigitStr === $winningDigitStr) {
                         $singleWinAmount = (float)$booking->slotItem->first_price;
+                        $booking->update(['first_price_flag' => 'true']);
                     } elseif (substr($bookingDigitStr, 1, 2) === substr($winningDigitStr, 1, 2)) {
                         $singleWinAmount = (float)$booking->slotItem->second_price;
+                        $booking->update(['second_price_flag' => 'true']);
                     } elseif (substr($bookingDigitStr, 2, 1) === substr($winningDigitStr, 2, 1)) {
                         $singleWinAmount = (float)$booking->slotItem->third_price;
+                        $booking->update(['third_price_flag' => 'true']);
                     }
                 }
 
-                $winningBookings[] = [
+                $winnerData = [
                     'booking_id'        => $booking->booking_id,
                     'slot_id'           => $booking->slot_id,
                     'slot_items_id'     => $booking->slot_items_id,
@@ -745,6 +749,19 @@ class BookingController extends Controller
                     'single_win_amount' => $singleWinAmount,
                     'win_amount'        => $booking->win_amount
                 ];
+
+                if ((int)$booking->title_id === 3) {
+                    $threeDigitCount++;
+                    if ($threeDigitCount === 1) {
+                        $winnerData['first_price_flag'] = true;
+                    } elseif ($threeDigitCount === 2) {
+                        $winnerData['second_price_flag'] = true;
+                    } elseif ($threeDigitCount === 3) {
+                        $winnerData['third_price_flag'] = true;
+                    }
+                }
+
+                $winningBookings[] = $winnerData;
 
                 $totalWinAmount += (float) ($booking->win_amount ?? 0);
             }
@@ -784,6 +801,9 @@ class BookingController extends Controller
             $isWinner = false;
             $winAmount = 0;
             $singleWinAmount = 0;
+            $firstPriceFlag = false;
+            $secondPriceFlag = false;
+            $thirdPriceFlag = false;
 
             if (
                 $winnerSlotItem &&
@@ -797,22 +817,35 @@ class BookingController extends Controller
                     $isWinner = true;
                     $singleWinAmount = (float)$winnerSlotItem->first_price;
                     $winAmount = $singleWinAmount * $booking->qty;
+                    $firstPriceFlag = true;
                 } elseif (substr($bookingDigitStr, 1, 2) === substr($winningDigitStr, 1, 2)) {
                     $isWinner = true;
                     $singleWinAmount = (float)$winnerSlotItem->second_price;
                     $winAmount = $singleWinAmount * $booking->qty;
+                    $secondPriceFlag = true;
                 } elseif (substr($bookingDigitStr, 2, 1) === substr($winningDigitStr, 2, 1)) {
                     $isWinner = true;
                     $singleWinAmount = (float)$winnerSlotItem->third_price;
                     $winAmount = $singleWinAmount * $booking->qty;
+                    $thirdPriceFlag = true;
                 }
             }
 
             if ($isWinner) {
-                $booking->update([
+                $updateData = [
                     'is_winner' => "true",
                     'win_amount' => $winAmount
-                ]);
+                ];
+                if ($firstPriceFlag) {
+                    $updateData['first_price_flag'] = 'true';
+                }
+                if ($secondPriceFlag) {
+                    $updateData['second_price_flag'] = 'true';
+                }
+                if ($thirdPriceFlag) {
+                    $updateData['third_price_flag'] = 'true';
+                }
+                $booking->update($updateData);
 
                 $wallet = WalletRecharge::firstOrCreate(
                     ['customer_id' => $customer->customer_id],
@@ -831,7 +864,7 @@ class BookingController extends Controller
 
                 $totalWinAmount += $winAmount;
 
-                $winningBookings[] = [
+                $winnerData = [
                     'booking_id'        => $booking->booking_id,
                     'slot_id'           => $booking->slot_id,
                     'slot_items_id'     => $booking->slot_items_id,
@@ -841,6 +874,19 @@ class BookingController extends Controller
                     'single_win_amount' => $singleWinAmount,
                     'win_amount'        => $winAmount
                 ];
+
+                if ((int)$booking->title_id === 3) {
+                    $threeDigitCount++;
+                    if ($threeDigitCount === 1) {
+                        $winnerData['first_price_flag'] = true;
+                    } elseif ($threeDigitCount === 2) {
+                        $winnerData['second_price_flag'] = true;
+                    } elseif ($threeDigitCount === 3) {
+                        $winnerData['third_price_flag'] = true;
+                    }
+                }
+
+                $winningBookings[] = $winnerData;
             } else {
                 $booking->update([
                     'is_winner' => "false",

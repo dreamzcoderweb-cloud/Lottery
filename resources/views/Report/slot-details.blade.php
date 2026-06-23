@@ -87,6 +87,9 @@
 
         <!-- Winning Groups Section -->
         @if (!empty($data['winning_groups']))
+            @php
+                $hasThreeDigits = collect($data['winning_groups'])->contains('title', 3);
+            @endphp
             <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="card-title mb-0">Winning Groups</h5>
@@ -101,6 +104,11 @@
                                     <th>Color</th>
                                     <th>Ticket Amount</th>
                                     <th>Win Amount</th>
+                                    @if ($hasThreeDigits)
+                                        <th>First Prize</th>
+                                        <th>Second Prize</th>
+                                        <th>Third Prize</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -124,10 +132,37 @@
                                         </td>
                                         <td>₹{{ number_format((float) ($group['ticket_amt'] ?? 0), 2) }}</td>
                                         <td>
-                                            <strong class="text-success">
-                                                ₹{{ number_format((float) ($group['win_amount'] ?? 0), 2) }}
-                                            </strong>
+                                            @if ($group['title'] == 3)
+                                                <span class="text-muted">-</span>
+                                            @else
+                                                <strong class="text-success">
+                                                    ₹{{ number_format((float) ($group['win_amount'] ?? 0), 2) }}
+                                                </strong>
+                                            @endif
                                         </td>
+                                        @if ($hasThreeDigits)
+                                            @if ($group['title'] == 3)
+                                                <td>
+                                                    <strong class="text-success">
+                                                        ₹{{ number_format((float) ($group['first_price'] ?? 0), 2) }}
+                                                    </strong>
+                                                </td>
+                                                <td>
+                                                    <strong class="text-success">
+                                                        ₹{{ number_format((float) ($group['second_price'] ?? 0), 2) }}
+                                                    </strong>
+                                                </td>
+                                                <td>
+                                                    <strong class="text-success">
+                                                        ₹{{ number_format((float) ($group['third_price'] ?? 0), 2) }}
+                                                    </strong>
+                                                </td>
+                                            @else
+                                                <td class="text-muted">-</td>
+                                                <td class="text-muted">-</td>
+                                                <td class="text-muted">-</td>
+                                            @endif
+                                        @endif
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -153,35 +188,69 @@
                 </div>
                 <div class="card-body">
                     @php
-                        // Group winners by group_name
+
+                        // Group winners by group_name and ticket_amt, and aggregate quantities by slot_digit
                         $groupedWinners = [];
                         foreach ($winners as $winner) {
                             $gName = strtoupper($winner['group_name'] ?? 'N/A');
-                            $groupedWinners[$gName][] = [
-                                'digit' => $winner['slot_digit'] ?? '-',
-                                'quantity' => $winner['quantity'] ?? 0,
-                            ];
+                            $ticketAmt = (int)($winner['ticket_amt'] ?? 0);
+                            $gNameKey = $gName . ' (' . $ticketAmt . ')';
+                            $digit = $winner['slot_digit'] ?? '-';
+                            
+                            if (!isset($groupedWinners[$gNameKey][$digit])) {
+                                $groupedWinners[$gNameKey][$digit] = [
+                                    'quantity' => 0,
+                                ];
+                            }
+                            $groupedWinners[$gNameKey][$digit]['quantity'] += $winner['quantity'] ?? 0;
                         }
 
-                        // Sort group names: alphabetical groups first (sorted by length then alphabetically),
-                        // then numeric groups sorted numerically.
-                        uksort($groupedWinners, function ($a, $b) {
-                            $aIsNumeric = is_numeric($a);
-                            $bIsNumeric = is_numeric($b);
+                        // Reformat groupedWinners to have the list style expected by the downstream code
+                        foreach ($groupedWinners as $gNameKey => $digits) {
+                            $items = [];
+                            foreach ($digits as $digit => $digitData) {
+                                $items[] = [
+                                    'digit' => $digit,
+                                    'quantity' => $digitData['quantity'],
+                                ];
+                            }
+                            $groupedWinners[$gNameKey] = $items;
+                        }
 
-                            if ($aIsNumeric && !$bIsNumeric) {
-                                return 1;
+                        // Sort group names: alphabetical groups first, then numeric groups sorted numerically.
+                        // For the same group name, sort by ticket amount descending (e.g. ABC (300) before ABC (200)).
+                        uksort($groupedWinners, function ($a, $b) {
+                            // Extract group name and ticket amount from keys like "ABC (300)"
+                            preg_match('/^([^\s(]+)(?:\s*\((\d+)\))?$/', $a, $matchesA);
+                            preg_match('/^([^\s(]+)(?:\s*\((\d+)\))?$/', $b, $matchesB);
+
+                            $gNameA = $matchesA[1] ?? $a;
+                            $amtA = isset($matchesA[2]) ? (int)$matchesA[2] : 0;
+
+                            $gNameB = $matchesB[1] ?? $b;
+                            $amtB = isset($matchesB[2]) ? (int)$matchesB[2] : 0;
+
+                            if ($gNameA !== $gNameB) {
+                                $aIsNumeric = is_numeric($gNameA);
+                                $bIsNumeric = is_numeric($gNameB);
+
+                                if ($aIsNumeric && !$bIsNumeric) {
+                                    return 1;
+                                }
+                                if (!$aIsNumeric && $bIsNumeric) {
+                                    return -1;
+                                }
+                                if ($aIsNumeric && $bIsNumeric) {
+                                    return (int)$gNameA <=> (int)$gNameB;
+                                }
+                                if (strlen($gNameA) !== strlen($gNameB)) {
+                                    return strlen($gNameA) <=> strlen($gNameB);
+                                }
+                                return strcmp($gNameA, $gNameB);
                             }
-                            if (!$aIsNumeric && $bIsNumeric) {
-                                return -1;
-                            }
-                            if ($aIsNumeric && $bIsNumeric) {
-                                return (int)$a <=> (int)$b;
-                            }
-                            if (strlen($a) !== strlen($b)) {
-                                return strlen($a) <=> strlen($b);
-                            }
-                            return strcmp($a, $b);
+
+                            // Sort by ticket amount descending when group name is identical
+                            return $amtB <=> $amtA;
                         });
 
                         $maxRows = 0;
@@ -250,7 +319,7 @@
             </div>
         @endif
 
-        <!-- Losers Section -->
+        {{-- <!-- Losers Section -->
         @if (!empty($losers))
             <div class="card mb-4">
                 <div class="card-header bg-danger text-white">
@@ -334,7 +403,7 @@
                     <p class="mb-0">No losing tickets for this slot.</p>
                 </div>
             </div>
-        @endif
+        @endif --}}
 
         <!-- Overall Summary -->
         <div class="card mb-4">

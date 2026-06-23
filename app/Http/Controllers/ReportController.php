@@ -51,6 +51,9 @@ class ReportController extends Controller
                         'color',
                         'win_amount',
                         'ticket_amt',
+                        'first_price',
+                        'second_price',
+                        'third_price',
                     ]);
 
                     if (!empty($title)) {
@@ -119,6 +122,9 @@ class ReportController extends Controller
                     'color'      => $item->color,
                     'win_amount' => $item->win_amount,
                     'ticket_amt' => $item->ticket_amt,
+                    'first_price' => $item->first_price,
+                    'second_price' => $item->second_price,
+                    'third_price' => $item->third_price,
                     'booking_qty' => (int) ($summary->total_qty ?? 0),
                     'booking_amount' => (float) ($summary->total_amount ?? 0),
                 ];
@@ -176,6 +182,7 @@ class ReportController extends Controller
                 'slot_digit' => $booking->slotItem->digit ?? '-',
                 'group_name' => strtoupper($booking->slotItem->group_name ?? 'N/A'),
                 'ticket_amount' => (float) ($booking->amount ?? 0),
+                'ticket_amt' => (float) ($booking->slotItem->ticket_amt ?? 0),
                 'booking_time' => $bookingTime,
                 'quantity' => $booking->qty,
                 'win_amount' => $booking->is_winner ? ((float) ($booking->win_amount ?? 0)) : 0,
@@ -224,7 +231,7 @@ class ReportController extends Controller
 
         // Get winning groups
         $winningGroups = SlotItem::where('slot_id', $slot_id)
-            ->select(['slot_items_id', 'title', 'group_name', 'digit', 'color', 'win_amount', 'ticket_amt'])
+            ->select(['slot_items_id', 'title', 'group_name', 'digit', 'color', 'win_amount', 'ticket_amt', 'first_price', 'second_price', 'third_price'])
             ->get()
             ->map(function ($item) {
                 return [
@@ -235,6 +242,9 @@ class ReportController extends Controller
                     'color' => $item->color,
                     'win_amount' => $item->win_amount,
                     'ticket_amt' => $item->ticket_amt,
+                    'first_price' => $item->first_price,
+                    'second_price' => $item->second_price,
+                    'third_price' => $item->third_price,
                 ];
             });
 
