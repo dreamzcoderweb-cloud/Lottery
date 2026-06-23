@@ -27,9 +27,9 @@
                     <thead class="table-light">
                         <tr>
                             <th>Image</th>
-                            <th>Short Title</th>
+                            {{-- <th>Short Title</th> --}}
                             <th>Title</th>
-                            <th>Sequence</th>
+                            {{-- <th>Sequence</th> --}}
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -39,15 +39,16 @@
                             <tr>
                                 <td><img src="{{ asset('assets/img/banner/' . $banner->image) }}" alt="banner image" class="rounded" width="50"
                                         height="50"></td>
-                                <td>{{ $banner->short_title }}</td>
+                                {{-- <td>{{ $banner->short_title }}</td> --}}
                                 <td>{{ $banner->title }}</td>
-                                <td>{{ $banner->sequence }}</td>
+                                {{-- <td>{{ $banner->sequence }}</td> --}}
                                 <td>
                                     <div class="form-check form-switch mb-2">
                                         <input class="form-check-input change_banner_status my-element" type="checkbox"
                                             id="flexSwitchCheckChecked" data-id="{{ $banner->id }}"
                                             {{ $banner->status == 'Active' ? 'checked' : '' }}>
                                     </div>
+                                    <span id="status_msg_{{ $banner->id }}" style="display: none;"></span>
                                 </td>
                                 <td>
                                     <div class="dropdown">
@@ -123,4 +124,9 @@
             </div>
         </div>
     </div>
+
+    <script>
+        window.canEditBanners = @json(auth()->user()->can('banners.edit'));
+        window.canDeleteBanners = @json(auth()->user()->can('banners.delete'));
+    </script>
 @endsection

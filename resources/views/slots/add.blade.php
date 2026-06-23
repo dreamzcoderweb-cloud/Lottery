@@ -119,17 +119,21 @@
                                        value="{{ old('short_title', $slot?->short_title ?? '') }}">
                             </div>
 
-                            <div class="col-md-2">
-                                <label class="form-label">Commission (%) <span class="text-danger">*</span></label>
-                                <input type="number"
-                                       name="commission"
-                                       class="form-control"
-                                       required
-                                       step="0.01"
-                                       min="0"
-                                       max="100"
-                                       value="{{ old('commission', $slot?->commission ?? '0.00') }}">
-                            </div>
+                            @if (isset($slot))
+                                <div class="col-md-2">
+                                    <label class="form-label">Commission (%) <span class="text-danger">*</span></label>
+                                    <input type="number"
+                                           name="commission"
+                                           class="form-control"
+                                           required
+                                           step="0.01"
+                                           min="0"
+                                           max="100"
+                                           value="{{ old('commission', $slot->commission ?? '10.00') }}">
+                                </div>
+                            @else
+                                <input type="hidden" name="commission" value="10.00">
+                            @endif
 
                             <div class="col-md-2">
                                 <label class="form-label">Title <span class="text-danger">*</span></label>

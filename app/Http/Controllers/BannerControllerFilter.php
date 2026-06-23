@@ -24,12 +24,12 @@ class BannerControllerFilter extends Controller
             // server side validation
             $request->validate(
                 [
-                    'short_title' => [
-                        'nullable',
-                        'min:3',
-                        'max:100',
-                        'regex:/^(?=.*[a-zA-Z])(?!.*<script>)[a-zA-Z0-9\s!@#$%^&*()_+{}\[\]:;\"\'<>,.?\/\\\\|-]+$/i'
-                    ],
+                    // 'short_title' => [
+                    //     'nullable',
+                    //     'min:3',
+                    //     'max:100',
+                    //     'regex:/^(?=.*[a-zA-Z])(?!.*<script>)[a-zA-Z0-9\s!@#$%^&*()_+{}\[\]:;\"\'<>,.?\/\\\\|-]+$/i'
+                    // ],
                     'title' => [
                         'required',
                         'min:10',
@@ -37,9 +37,9 @@ class BannerControllerFilter extends Controller
                         'regex:/^(?=.*[a-zA-Z])(?!.*<script>)[a-zA-Z0-9\s!@#$%^&*()_+{}\[\]:;\"\'<>,.?\/\\\\|-]+$/i',
                         'unique:banners,title'
                     ],
-                    'image' => 'required|image|mimes:jpeg,jpg,png|max:1024|dimensions:width=493,height=640',
+                    'image' => 'required|image|mimes:jpeg,jpg,png|max:1024',
                     'description' => 'nullable',
-                    'sequence' => 'required|numeric',
+                   // 'sequence' => 'required|numeric',
                     'link' => 'nullable|url',
                     // 'status' => 'required'
                 ],
@@ -51,7 +51,7 @@ class BannerControllerFilter extends Controller
                     'title.max' => 'Title range from 10 to 100 characters',
                     'title.unique' => 'Already exists',
                     'title.regex'=>'This field is an invalid format',
-                    'image.dimensions' => 'Image range from 493 px to 640 px',
+                    //'image.dimensions' => 'Image range from 493 px to 640 px',
                     'image.mimes' => 'Upload a valid image file (e.g., .jpg, .jpeg, .png)',
                     'image.image' => 'Upload a valid image file (e.g., .jpg, .jpeg, .png)',
                     'image.max' => 'The field must not be greater than 1 MB.',
@@ -72,11 +72,11 @@ class BannerControllerFilter extends Controller
 
             // Insert data into the database
             $banner = new Banner();
-            $banner->short_title = $request->short_title;
+            //$banner->short_title = $request->short_title;
             $banner->title = $request->title;
             $banner->image = $imagePath;
             $banner->description = $request->description;
-            $banner->sequence = $request->sequence;
+            //$banner->sequence = $request->sequence;
             $banner->link = $request->link;
             // $banner->status = $request->status;
             $banner->save();
@@ -100,12 +100,12 @@ class BannerControllerFilter extends Controller
             // server side validation
             $request->validate(
                 [
-                    'short_title' => [
-                        'nullable',
-                        'min:3',
-                        'max:100',
-                        'regex:/^(?=.*[a-zA-Z])(?!.*<script>)[a-zA-Z0-9\s!@#$%^&*()_+{}\[\]:;\"\'<>,.?\/\\\\|-]+$/i'
-                    ],
+                    // 'short_title' => [
+                    //     'nullable',
+                    //     'min:3',
+                    //     'max:100',
+                    //     'regex:/^(?=.*[a-zA-Z])(?!.*<script>)[a-zA-Z0-9\s!@#$%^&*()_+{}\[\]:;\"\'<>,.?\/\\\\|-]+$/i'
+                    // ],
                     'title' => [
                         'required',
                         'min:10',
@@ -113,9 +113,9 @@ class BannerControllerFilter extends Controller
                         'regex:/^(?=.*[a-zA-Z])(?!.*<script>)[a-zA-Z0-9\s!@#$%^&*()_+{}\[\]:;\"\'<>,.?\/\\\\|-]+$/i',
                         'unique:banners,title,' . $request->id
                     ],
-                    'image' => 'nullable|image|mimes:jpeg,jpg,png|max:1024|dimensions:width=493,height=640',
+                    'image' => 'nullable|image|mimes:jpeg,jpg,png|max:1024',
                     'description' => 'nullable',
-                    'sequence' => 'required|numeric',
+                    //'sequence' => 'required|numeric',
                     'link' => 'nullable|url',
                     // 'status' => 'required'
                 ],
@@ -127,7 +127,7 @@ class BannerControllerFilter extends Controller
                     'title.max' => 'Title range from 10 to 100 characters',
                     'title.unique' => 'Already exists',
                     'title.regex'=>'This field is an invalid format',
-                    'image.dimensions' => 'Image range from 493 px to 640 px',
+                    //'image.dimensions' => 'Image range from 493 px to 640 px',
                     'image.mimes' => 'Upload a valid image file (e.g., .jpg, .jpeg, .png)',
                     'image.image' => 'Upload a valid image file (e.g., .jpg, .jpeg, .png)',
                     'image.max' => 'The field must not be greater than 1 MB.',
@@ -152,10 +152,10 @@ class BannerControllerFilter extends Controller
             }
 
             // Update other fields
-            $banner->short_title = $request->short_title;
+           // $banner->short_title = $request->short_title;
             $banner->title = $request->title;
             $banner->description = $request->description;
-            $banner->sequence = $request->sequence;
+            //$banner->sequence = $request->sequence;
             $banner->link = $request->link;
             // $banner->status = $request->status;
 
@@ -184,7 +184,7 @@ class BannerControllerFilter extends Controller
 
     public function change_status(Request $request)
     {
-        
+
         if ($request->status == 'Active') {
             Banner::find($request->id)->update(['status' => 'Active']);
             $status = Banner::where('id', '=', $request->id)->pluck('status')->first();

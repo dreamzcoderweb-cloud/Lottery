@@ -159,4 +159,81 @@ class WalletRechargeTest extends TestCase
             'customer_id' => $customer->customer_id,
         ]);
     }
+
+    public function test_wallet_index_calculates_and_returns_commission_correctly(): void
+    {
+        $customer = Customer::create([
+            'name' => 'Test Customer',
+            'mobile' => '9999999999',
+            'password' => bcrypt('password123'),
+        ]);
+
+        WalletRecharge::create([
+            'customer_id' => $customer->customer_id,
+            'balance' => 5000.00,
+        ]);
+
+        // Create transaction 1: Credit win 2700, Debit commission 300 (originally 3000 win, so 10%)
+        WalletTransactions::create([
+            'customer_id' => $customer->customer_id,
+            'type' => 'credit',
+            'amount' => 2700.00,
+            'payment_method' => 'slot win',
+            'reference_no' => 'WIN-101',
+            'remarks' => 'Slot winning amount credited',
+        ]);
+        WalletTransactions::create([
+            'customer_id' => $customer->customer_id,
+            'type' => 'debit',
+            'amount' => 300.00,
+            'payment_method' => 'commission',
+            'reference_no' => 'COM-101',
+            'remarks' => 'Commission deducted from winnings',
+        ]);
+
+        // Create transaction 2: Credit win 1600, Debit commission 400 (originally 2000 win, so 20%)
+        WalletTransactions::create([
+            'customer_id' => $customer->customer_id,
+            'type' => 'credit',
+            'amount' => 1600.00,
+            'payment_method' => 'slot win',
+            'reference_no' => 'WIN-102',
+            'remarks' => 'Slot winning amount credited',
+        ]);
+        WalletTransactions::create([
+            'customer_id' => $customer->customer_id,
+            'type' => 'debit',
+            'amount' => 400.00,
+            'payment_method' => 'commission',
+            'reference_no' => 'COM-102',
+            'remarks' => 'Commission deducted from winnings',
+        ]);
+
+        Sanctum::actingAs($customer);
+
+        $response = $this->getJson('/api/v1/wallet-recharges');
+
+        $response->assertStatus(200);
+
+        // Verify total commission = 300 + 400 = 700
+        $response->assertJsonPath('total_commission', 700);
+
+        // Average commission percentage = (10% + 20%) / 2 = 15%
+        $response->assertJsonPath('average_commission_percentage', 15);
+        $response->assertJsonPath('commission_percentage', 15);
+
+        // Verify individual transaction commission percentages and amounts in history
+        $transactions = $response->json('transactions');
+        $this->assertCount(4, $transactions); // 2 credits, 2 debits (commissions)
+
+        foreach ($transactions as $tx) {
+            if ($tx['reference_no'] === 'WIN-101' || $tx['reference_no'] === 'COM-101') {
+                $this->assertEquals(10, $tx['commission_percentage']);
+                $this->assertEquals(300, $tx['commission_amount']);
+            } elseif ($tx['reference_no'] === 'WIN-102' || $tx['reference_no'] === 'COM-102') {
+                $this->assertEquals(20, $tx['commission_percentage']);
+                $this->assertEquals(400, $tx['commission_amount']);
+            }
+        }
+    }
 }

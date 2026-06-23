@@ -866,6 +866,17 @@ class BookingController extends Controller
                     'remarks'         => 'Slot winning amount credited',
                 ]);
 
+                if ($commissionAmount > 0) {
+                    WalletTransactions::create([
+                        'customer_id'     => $customer->customer_id,
+                        'type'            => 'debit',
+                        'amount'          => $commissionAmount,
+                        'payment_method'  => 'commission',
+                        'reference_no'    => 'COM-' . $booking->booking_id,
+                        'remarks'         => 'Commission deducted from winnings',
+                    ]);
+                }
+
                 $totalWinAmount += $winAmount;
 
                 $winnerData = [
@@ -960,6 +971,17 @@ class BookingController extends Controller
                     'reference_no'    => 'WIN-' . $booking->booking_id,
                     'remarks'         => 'Slot winning amount credited',
                 ]);
+
+                if ($commissionAmount > 0) {
+                    WalletTransactions::create([
+                        'customer_id'     => $customer->customer_id,
+                        'type'            => 'debit',
+                        'amount'          => $commissionAmount,
+                        'payment_method'  => 'commission',
+                        'reference_no'    => 'COM-' . $booking->booking_id,
+                        'remarks'         => 'Commission deducted from winnings',
+                    ]);
+                }
                 /*
                 |--------------------------------------------------------------------------
                 | Response Data

@@ -75,34 +75,59 @@ $(document).ready(function () {
                         tableBody.empty();
 
                         banners.forEach(function (banner) {
+                            let actionsHtml = '';
+                            if (window.canEditBanners || window.canDeleteBanners) {
+                                actionsHtml += `
+                                <div class="dropdown">
+                                    <button class="btn btn-light btn-sm" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bx bx-dots-vertical-rounded"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">`;
+                                
+                                if (window.canEditBanners) {
+                                    actionsHtml += `
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="${APP_URL}/admin/edit_banner/${banner.id}">
+                                                <i class="bx bx-edit-alt me-2"></i> Edit
+                                            </a>
+                                        </li>`;
+                                }
+
+                                if (window.canDeleteBanners) {
+                                    actionsHtml += `
+                                        <li>
+                                            <a href="#"
+                                                class="dropdown-item text-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteModal"
+                                                data-id="${banner.id}"
+                                                data-name="admin/delete_banner">
+                                                <i class="bx bx-trash me-2"></i> Delete
+                                            </a>
+                                        </li>`;
+                                }
+
+                                actionsHtml += `
+                                    </ul>
+                                </div>`;
+                            }
+
                             let row = `
                             <tr>
                                 <td><img src="${APP_URL}/assets/img/banner/${banner.image}" alt="banner image" class="rounded" width="50" height="50"></td>
-                                <td>${banner.short_title}</td>
                                 <td>${banner.title}</td>
-                                <td>${banner.sequence}</td>
                                 <td>
                                     <div class="form-check form-switch mb-2">
                                         <input class="form-check-input change_banner_status my-element" type="checkbox"
                                             id="flexSwitchCheckChecked" data-id="${banner.id}"
                                             ${banner.status == 'Active' ? 'checked' : ''}>
                                     </div>
+                                    <span id="status_msg_${banner.id}" style="display: none;"></span>
                                 </td>
                                 <td>
-                                    <div class="dropdown">
-                                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                            <i class="bx bx-dots-vertical-rounded"></i>
-                                        </button>
-                                        <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="edit_banner/${banner.id}">
-                                                <i class="bx bx-edit-alt me-1"></i> Edit
-                                            </a>
-                                            <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                data-id="${banner.id}" data-name="delete_banner">
-                                                <i class="bx bx-trash me-1"></i> Delete
-                                            </a>
-                                        </div>
-                                    </div>
+                                    ${actionsHtml}
                                 </td>
                             </tr>
                             `;
@@ -112,7 +137,11 @@ $(document).ready(function () {
 
                         // Reinitialize the DataTable
                         new DataTable('#banners-table', {
-                            layout: {}
+                            layout: {},
+                            "ordering": false,
+                            oLanguage: {
+                                sLengthMenu: "_MENU_",
+                            }
                         });
 
                         $("#status_filter").val('');

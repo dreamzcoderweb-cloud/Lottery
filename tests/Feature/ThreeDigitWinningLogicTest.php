@@ -455,4 +455,53 @@ class ThreeDigitWinningLogicTest extends TestCase
             'reference_no' => 'WIN-' . $booking->booking_id,
         ]);
     }
+
+    public function test_commission_transaction_is_recorded_in_wallet_transactions(): void
+    {
+        Sanctum::actingAs($this->customer);
+
+        // Update slot commission to 15%
+        $this->slot->update(['commission' => 15.00]);
+
+        // Booking with complete 3-digit match (123)
+        // first_price = 3000.00, qty = 1, so win_amount = 3000.00
+        $booking = Booking::create([
+            'customer_id' => $this->customer->customer_id,
+            'slot_id' => $this->slot->slot_id,
+            'slot_items_id' => $this->slotItem->slot_items_id,
+            'title_id' => 3,
+            'digits' => 123,
+            'qty' => 1,
+            'amount' => 200.00,
+            'status' => 'success',
+            'booking_time' => '10:00:00',
+            'close_time' => '12:00:00',
+            'payment_status' => 'paid',
+        ]);
+
+        $response = $this->getJson('/api/v1/tickets/result');
+        $response->assertStatus(200);
+
+        // Win Amount = 3000.00
+        // Commission = 15% of 3000.00 = 450.00
+        // Credit amount = 3000.00 - 450.00 = 2550.00
+
+        // Verify credit transaction
+        $this->assertDatabaseHas('wallet_transactions', [
+            'customer_id' => $this->customer->customer_id,
+            'type' => 'credit',
+            'amount' => 2550.00,
+            'reference_no' => 'WIN-' . $booking->booking_id,
+        ]);
+
+        // Verify commission debit transaction
+        $this->assertDatabaseHas('wallet_transactions', [
+            'customer_id' => $this->customer->customer_id,
+            'type' => 'debit',
+            'amount' => 450.00,
+            'payment_method' => 'commission',
+            'reference_no' => 'COM-' . $booking->booking_id,
+            'remarks' => 'Commission deducted from winnings',
+        ]);
+    }
 }

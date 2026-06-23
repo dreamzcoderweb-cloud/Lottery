@@ -26,6 +26,7 @@ class SlotController extends Controller
 
     public function show($id)
     {
+        $slot = Slot::find($id);
         $slotitems = SlotItem::where('slot_id', $id)->get();
 
         if(!$slotitems) {
@@ -38,6 +39,7 @@ class SlotController extends Controller
         return response()->json([
             'message' => 'Sub-slots retrieved successfully',
             'sub_slots' => $slotitems,
+            'slot_commission' => $slot->commission,
         ]);
     }
 }

@@ -13,7 +13,7 @@
                     <div class="card-body">
                         <form action="{{ url('admin/add_banner') }}" method="POST" enctype="multipart/form-data">
                             @csrf
-                            <div class="row mb-6">
+                            {{-- <div class="row mb-6">
                                 <label class="col-sm-2 col-form-label" for="basic-default-name">Short Title</label>
                                 <div class="col-sm-10">
                                     <input type="text" class="form-control" id="short_title" name="short_title" value="{{ old('short_title') }}"/>
@@ -21,7 +21,7 @@
                                         {{ $errors->first('short_title') }}
                                     </span>
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="row mb-6">
                                 <label class="col-sm-2 col-form-label" for="basic-default-company">Title <span
                                         class="text-danger">*</span></label>
@@ -37,7 +37,7 @@
                                         class="text-danger">*</span></label>
                                 <div class="col-sm-10">
                                     <input class="form-control" type="file" id="image" name="image" />
-                                    <div class="pt-1"><strong>Recommended Size: 493 x 640 px</strong> | Allowed Types: jpg,jpeg,png | Maxfile Size: 1MB</div>
+                                    <div class="pt-1"><strong>Recommended Allowed Types: jpg,jpeg,png | Maxfile Size: 1MB</strong></div>
                                     <div class="text-danger">
                                         {{ $errors->first('image') }}
                                     </div>
@@ -52,7 +52,7 @@
                                     </span>
                                 </div>
                             </div>
-                            <div class="row mb-6">
+                            {{-- <div class="row mb-6">
                                 <label class="col-sm-2 col-form-label" for="basic-default-message">Sequence <span
                                         class="text-danger">*</span></label>
                                 <div class="col-sm-10">
@@ -61,7 +61,7 @@
                                         {{ $errors->first('sequence') }}
                                     </span>
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="row mb-6">
                                 <label class="col-sm-2 col-form-label" for="basic-default-message">Link</label>
                                 <div class="col-sm-10">
