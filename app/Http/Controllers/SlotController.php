@@ -179,6 +179,7 @@ class SlotController extends Controller
             'draw_date' => ['required', 'date', 'after_or_equal:today'],
             'booking_close_time' => ['required'],
             'short_title' => ['required', 'string', 'max:255'],
+            'commission' => ['required', 'numeric', 'min:0', 'max:100'],
             'title' => ['required', 'string', 'max:255', 'regex:/^\\d+(?:,\\d+)*$/'],
             'win_amount' => ['nullable', 'array'],
             'win_amount.*' => ['nullable', 'numeric', 'min:0'],
@@ -306,6 +307,7 @@ class SlotController extends Controller
                'draw_time' => $validated['draw_time'],
                 'short_title' => $validated['short_title'],
                 'title' => $validated['title'],
+                'commission' => $validated['commission'],
                 'slug' => $this->makeUniqueSlug($validated['main_title']),
                 'status' => 'Active',
             ]);
@@ -362,6 +364,7 @@ class SlotController extends Controller
             'draw_date' => ['required', 'date'],
             'booking_close_time' => ['required'],
             'short_title' => ['required', 'string', 'max:255'],
+            'commission' => ['required', 'numeric', 'min:0', 'max:100'],
             'title' => ['required', 'string', 'max:255', 'regex:/^\\d+(?:,\\d+)*$/'],
             'win_amount' => ['nullable', 'array'],
             'win_amount.*' => ['nullable', 'numeric', 'min:0'],
@@ -490,6 +493,7 @@ class SlotController extends Controller
                 'booking_close_time' => $validated['booking_close_time'],
                 'short_title' => $validated['short_title'],
                 'title' => $validated['title'],
+                'commission' => $validated['commission'],
                 'slug' => $this->makeUniqueSlug($validated['main_title'], (int) $slot->slot_id),
                 'status' => $validated['status'] ?? $slot->status,
             ]);

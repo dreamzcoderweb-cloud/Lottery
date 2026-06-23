@@ -27,6 +27,7 @@
                             <th>Customer Name</th>
                             <th>Mobile</th>
                             <th>Reference Code</th>
+                            <th>Reference by</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -37,7 +38,7 @@
                                 <td>{{ $customer->name }}</td>
                                 <td>{{ $customer->mobile }}</td>
                                 <td>{{ $customer->reference_code }}</td>
-
+                               <td>{{ $customer->referredBy->name ?? '-' }}</td>
                                 <td>
                                     <div class="dropdown">
                                         <button class="btn btn-light btn-sm" type="button"

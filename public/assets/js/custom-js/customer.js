@@ -65,4 +65,25 @@ $(document).ready(function () {
         }
     });
     // datatable js end
+
+    // datatable for winning-tickets-table
+    if ($('#winning-tickets-table').length) {
+        new DataTable('#winning-tickets-table', {
+            layout: {
+                topStart: [
+                    'pageLength',
+                    {
+                        buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+                    }
+                ],
+                topEnd: 'search'
+            },
+            ordering: false,
+            paging: true,
+            info: true,
+            oLanguage: {
+                sLengthMenu: "_MENU_"
+            }
+        });
+    }
 });

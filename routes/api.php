@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\WalletRechargeController;
 use App\Http\Controllers\Api\WalletWithdrawalController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\BannerController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -16,7 +17,7 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('customer/me', [CustomerAuthController::class, 'me']);
         Route::post('customer/logout', [CustomerAuthController::class, 'logout']);
-
+        Route::get('banner', [BannerController::class, 'index']);
         Route::prefix('slot')->group(function () {
             Route::get('/', [SlotController::class, 'index']);
             Route::get('sub-slot/{id}', [SlotController::class, 'show']);

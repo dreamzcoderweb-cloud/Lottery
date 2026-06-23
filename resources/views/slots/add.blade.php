@@ -120,6 +120,18 @@
                             </div>
 
                             <div class="col-md-2">
+                                <label class="form-label">Commission (%) <span class="text-danger">*</span></label>
+                                <input type="number"
+                                       name="commission"
+                                       class="form-control"
+                                       required
+                                       step="0.01"
+                                       min="0"
+                                       max="100"
+                                       value="{{ old('commission', $slot?->commission ?? '0.00') }}">
+                            </div>
+
+                            <div class="col-md-2">
                                 <label class="form-label">Title <span class="text-danger">*</span></label>
                                 <input type="hidden" id="title" name="title" value="{{ old('title', $slot?->title) }}">
                                 <select class="form-select" id="title_multi" name="title_multi[]" multiple size="5" required>

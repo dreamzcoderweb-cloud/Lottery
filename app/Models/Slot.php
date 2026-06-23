@@ -18,6 +18,7 @@ class Slot extends Model
         'draw_time',
         'short_title',
         'title',
+        'commission',
         'slug',
         'status',
     ];

@@ -847,16 +847,20 @@ class BookingController extends Controller
                 }
                 $booking->update($updateData);
 
+                $commissionPercentage = (float) ($slot->commission ?? 0);
+                $commissionAmount = ($winAmount * $commissionPercentage) / 100;
+                $creditAmount = $winAmount - $commissionAmount;
+
                 $wallet = WalletRecharge::firstOrCreate(
                     ['customer_id' => $customer->customer_id],
                     ['balance' => 0]
                 );
 
-                $wallet->increment('balance', $winAmount);
+                $wallet->increment('balance', $creditAmount);
                 WalletTransactions::create([
                     'customer_id'     => $customer->customer_id,
                     'type'            => 'credit',
-                    'amount'          => $winAmount,
+                    'amount'          => $creditAmount,
                     'payment_method'  => 'slot win',
                     'reference_no'    => 'WIN-' . $booking->booking_id,
                     'remarks'         => 'Slot winning amount credited',
@@ -938,16 +942,20 @@ class BookingController extends Controller
                 |--------------------------------------------------------------------------
                 */
 
+                $commissionPercentage = (float) ($slot->commission ?? 0);
+                $commissionAmount = ($winAmount * $commissionPercentage) / 100;
+                $creditAmount = $winAmount - $commissionAmount;
+
                 $wallet = WalletRecharge::firstOrCreate(
                     ['customer_id' => $customer->customer_id],
                     ['balance' => 0]
                 );
 
-                $wallet->increment('balance', $winAmount);
+                $wallet->increment('balance', $creditAmount);
                 WalletTransactions::create([
                     'customer_id'     => $customer->customer_id,
                     'type'            => 'credit', // win money so credit
-                    'amount'          => $winAmount,
+                    'amount'          => $creditAmount,
                     'payment_method'  => 'slot win',
                     'reference_no'    => 'WIN-' . $booking->booking_id,
                     'remarks'         => 'Slot winning amount credited',

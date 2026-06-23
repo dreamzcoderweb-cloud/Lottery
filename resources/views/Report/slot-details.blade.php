@@ -196,7 +196,7 @@
                             $ticketAmt = (int)($winner['ticket_amt'] ?? 0);
                             $gNameKey = $gName . ' (' . $ticketAmt . ')';
                             $digit = $winner['slot_digit'] ?? '-';
-                            
+
                             if (!isset($groupedWinners[$gNameKey][$digit])) {
                                 $groupedWinners[$gNameKey][$digit] = [
                                     'quantity' => 0,
@@ -260,7 +260,7 @@
                     @endphp
 
                     <div class="table-responsive">
-                        <table class="table table-bordered table-hover align-middle">
+                        <table id="winning-tickets-table" class="table table-bordered table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
                                     @foreach ($groupedWinners as $gName => $items)

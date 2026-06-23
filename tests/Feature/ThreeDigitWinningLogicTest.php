@@ -408,4 +408,51 @@ class ThreeDigitWinningLogicTest extends TestCase
         $this->assertArrayNotHasKey('second_price_flag', $winners[3]);
         $this->assertArrayNotHasKey('third_price_flag', $winners[3]);
     }
+
+    public function test_commission_deductions_from_winnings(): void
+    {
+        Sanctum::actingAs($this->customer);
+
+        // Update slot commission to 10%
+        $this->slot->update(['commission' => 10.00]);
+
+        // Get initial wallet balance
+        $wallet = WalletRecharge::where('customer_id', $this->customer->customer_id)->first();
+        $initialBalance = (float) $wallet->balance;
+
+        // Booking with complete 3-digit match (123)
+        // first_price = 3000.00, qty = 2, so win_amount = 6000.00
+        $booking = Booking::create([
+            'customer_id' => $this->customer->customer_id,
+            'slot_id' => $this->slot->slot_id,
+            'slot_items_id' => $this->slotItem->slot_items_id,
+            'title_id' => 3,
+            'digits' => 123,
+            'qty' => 2,
+            'amount' => 200.00,
+            'status' => 'success',
+            'booking_time' => '10:00:00',
+            'close_time' => '12:00:00',
+            'payment_status' => 'paid',
+        ]);
+
+        $response = $this->getJson('/api/v1/tickets/result');
+        $response->assertStatus(200);
+
+        // Win Amount = 6000.00
+        // Commission = 10% of 6000.00 = 600.00
+        // Adjusted balance to credit = 6000.00 - 600.00 = 5400.00
+        $expectedBalance = $initialBalance + 5400.00;
+
+        $wallet->refresh();
+        $this->assertEquals($expectedBalance, (float) $wallet->balance);
+
+        // Verify transaction is recorded with adjusted amount
+        $this->assertDatabaseHas('wallet_transactions', [
+            'customer_id' => $this->customer->customer_id,
+            'type' => 'credit',
+            'amount' => 5400.00,
+            'reference_no' => 'WIN-' . $booking->booking_id,
+        ]);
+    }
 }

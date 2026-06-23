@@ -31,6 +31,7 @@ class SlotValidationTest extends TestCase
             'draw_time' => '14:30',
             'booking_close_time' => '14:00',
             'short_title' => 'T3D',
+            'commission' => 10.00,
             'title' => '3',
             'group_name' => ['ABC', 'ABC'], // Duplicate group names
             'digit' => ['123', '456'],
@@ -78,6 +79,7 @@ class SlotValidationTest extends TestCase
             'draw_time' => '14:30',
             'booking_close_time' => '14:00',
             'short_title' => 'T2D',
+            'commission' => 10.00,
             'title' => '2',
             'group_name' => ['AB', 'AB'], // Duplicate group names
             'digit' => ['12', '34'],
@@ -138,6 +140,7 @@ class SlotValidationTest extends TestCase
             'draw_time' => '14:30',
             'booking_close_time' => '14:00',
             'short_title' => 'T1D',
+            'commission' => 10.00,
             'title' => '1',
             'group_name' => ['A'],
             'digit' => ['1'],
