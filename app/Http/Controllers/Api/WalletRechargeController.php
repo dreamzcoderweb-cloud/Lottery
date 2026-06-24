@@ -55,7 +55,7 @@ class WalletRechargeController extends Controller
             'Wallet Recharge',
             'Lottery Booking Amount Deducted',
             'Slot winning amount credited',
-            'Commission deducted from winnings',
+            // 'Commission deducted from winnings',
         ];
 
         $transactions = $allTransactions->filter(function ($tx) use ($targetRemarks) {

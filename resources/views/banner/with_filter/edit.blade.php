@@ -24,7 +24,7 @@
                                     </span>
                                 </div>
                             </div> --}}
-                            <div class="row mb-6">
+                            {{-- <div class="row mb-6">
                                 <label class="col-sm-2 col-form-label" for="basic-default-company">Title <span
                                         class="text-danger">*</span></label>
                                 <div class="col-sm-10">
@@ -34,7 +34,7 @@
                                         {{ $errors->first('title') }}
                                     </span>
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="row mb-6">
                                 <label class="col-sm-2 col-form-label" for="basic-default-company">Image <span
                                         class="text-danger">*</span></label>

@@ -16,7 +16,7 @@ class CustomerAuthController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'mobile' => ['required', 'string', 'max:20', 'unique:customers,mobile'],
-            'password' => ['required', 'string', 'min:6'],
+            //'password' => ['required', 'string', 'min:6'],
             // Optional referral code of the person who referred this customer.
             'reference_code' => ['nullable', 'string', 'max:255', 'exists:customers,reference_code'],
         ]);
@@ -34,7 +34,7 @@ class CustomerAuthController extends Controller
             $customer = Customer::create([
                 'name' => $validated['name'],
                 'mobile' => $validated['mobile'],
-                'password' => Hash::make($validated['password']),
+                //'password' => Hash::make($validated['password']),
                 'reference_code' => $customerReferenceCode,
                 'referred_by_customer_id' => $referrer?->customer_id,
             ]);
@@ -87,12 +87,12 @@ class CustomerAuthController extends Controller
     {
         $validated = $request->validate([
             'mobile' => ['required', 'string', 'max:20'],
-            'password' => ['required', 'string'],
+            //'password' => ['required', 'string'],
         ]);
 
         $customer = Customer::where('mobile', $validated['mobile'])->first();
 
-        if (! $customer || ! Hash::check($validated['password'], $customer->password)) {
+        if (! $customer) {
             throw ValidationException::withMessages([
                 'mobile' => ['The provided credentials are incorrect.'],
             ]);
@@ -107,44 +107,44 @@ class CustomerAuthController extends Controller
         ]);
     }
 
-   public function me(Request $request)
-{
-    $customer = $request->user();
+    public function me(Request $request)
+    {
+        $customer = $request->user();
 
-    // current wallet balance
-    $walletBalance = $customer->wallet?->balance ?? 0;
+        // current wallet balance
+        $walletBalance = $customer->wallet?->balance ?? 0;
 
-    // total recharge amount
-    $totalRecharge = $customer->walletTransactions()
-        ->where('type', 'credit')
-        ->sum('amount');
+        // total recharge amount
+        $totalRecharge = $customer->walletTransactions()
+            ->where('type', 'credit')
+            ->sum('amount');
 
-    // total debit amount
-    $totalDebit = $customer->walletTransactions()
-        ->where('type', 'debit')
-        ->sum('amount');
+        // total debit amount
+        $totalDebit = $customer->walletTransactions()
+            ->where('type', 'debit')
+            ->sum('amount');
 
-    return response()->json([
-        'customer' => [
-            'customer_id' => $customer->customer_id,
-            'name' => $customer->name,
-            'mobile' => $customer->mobile,
-            'reference_code' => $customer->reference_code,
+        return response()->json([
+            'customer' => [
+                'customer_id' => $customer->customer_id,
+                'name' => $customer->name,
+                'mobile' => $customer->mobile,
+                'reference_code' => $customer->reference_code,
 
-            // referred customer reference code
-            'referred_by_reference_code' => $customer->referredBy?->reference_code,
+                // referred customer reference code
+                'referred_by_reference_code' => $customer->referredBy?->reference_code,
 
-            'created_at' => $customer->created_at,
-            'updated_at' => $customer->updated_at,
-        ],
+                'created_at' => $customer->created_at,
+                'updated_at' => $customer->updated_at,
+            ],
 
-        'wallet' => [
-            'current_balance' => $walletBalance,
-            'total_recharge' => $totalRecharge,
-            'total_debit' => $totalDebit,
-        ]
-    ]);
-}
+            'wallet' => [
+                'current_balance' => $walletBalance,
+                'total_recharge' => $totalRecharge,
+                'total_debit' => $totalDebit,
+            ]
+        ]);
+    }
 
 
     public function profile(){
@@ -158,5 +158,61 @@ class CustomerAuthController extends Controller
         return response()->json([
             'message' => 'Logged out successfully',
         ]);
+    }
+    public function checkMobile(Request $request)
+    {
+        $validated = $request->validate([
+            'mobile' => ['required', 'string', 'max:20'],
+        ]);
+
+        $exists = Customer::where('mobile', $validated['mobile'])->exists();
+
+        return response()->json([
+            'exists' => $exists,
+        ]);
+    }
+    public function checkDetails(Request $request)
+    {
+        $validated = $request->validate([
+            //'name' => ['required', 'string', 'max:255'],
+            'mobile' => ['required', 'string', 'max:20','unique:customers,mobile'],
+            'reference_code' => ['nullable', 'string', 'max:255', 'exists:customers,reference_code'],
+        ]);
+
+        // Step 1: Check Name
+        // $customer = Customer::where('name', $validated['name'])->first();
+
+        // if (!$customer) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'message' => 'Invalid name.'
+        //     ], 404);
+        // }
+
+        // Step 2: Check Mobile for that Name
+        $customer = Customer::where('mobile', $validated['mobile'])
+            ->first();
+
+        if (!$customer) {
+            return response()->json([
+                'status' => true,
+                'message' => 'no customer found with the provided mobile number.'
+            ], 200);
+        }
+
+        // Step 3: Check Reference Code (if provided)
+        if (!empty($validated['reference_code'])) {
+            $customer = Customer::where('mobile', $validated['mobile'])
+                ->where('reference_code', $validated['reference_code'])
+                ->first();
+
+            if (!$customer) {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'no customer found with the provided reference code.'
+                ], 200);
+            }
+        }
+
     }
 }

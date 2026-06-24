@@ -13,7 +13,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     Route::post('customer/register', [CustomerAuthController::class, 'register']);
     Route::post('customer/login', [CustomerAuthController::class, 'login']);
-
+    Route::post('check-mobile', [CustomerAuthController::class, 'checkMobile']);
+    Route::post('check-details', [CustomerAuthController::class, 'checkDetails']);
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('customer/me', [CustomerAuthController::class, 'me']);
         Route::post('customer/logout', [CustomerAuthController::class, 'logout']);

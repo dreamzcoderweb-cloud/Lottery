@@ -30,13 +30,13 @@ class BannerControllerFilter extends Controller
                     //     'max:100',
                     //     'regex:/^(?=.*[a-zA-Z])(?!.*<script>)[a-zA-Z0-9\s!@#$%^&*()_+{}\[\]:;\"\'<>,.?\/\\\\|-]+$/i'
                     // ],
-                    'title' => [
-                        'required',
-                        'min:10',
-                        'max:100',
-                        'regex:/^(?=.*[a-zA-Z])(?!.*<script>)[a-zA-Z0-9\s!@#$%^&*()_+{}\[\]:;\"\'<>,.?\/\\\\|-]+$/i',
-                        'unique:banners,title'
-                    ],
+                    // 'title' => [
+                    //     'required',
+                    //     'min:10',
+                    //     'max:100',
+                    //     'regex:/^(?=.*[a-zA-Z])(?!.*<script>)[a-zA-Z0-9\s!@#$%^&*()_+{}\[\]:;\"\'<>,.?\/\\\\|-]+$/i',
+                    //     'unique:banners,title'
+                    // ],
                     'image' => 'required|image|mimes:jpeg,jpg,png|max:1024',
                     'description' => 'nullable',
                    // 'sequence' => 'required|numeric',
@@ -44,18 +44,18 @@ class BannerControllerFilter extends Controller
                     // 'status' => 'required'
                 ],
                     [
-                    'short_title.min' => 'Short Title range from 3 to 100 characters',
-                    'short_title.max' => 'Short Title range from 3 to 100 characters',
-                    'short_title.regex'=>'This field is an invalid format',
-                    'title.min' => 'Title range from 10 to 100 characters',
-                    'title.max' => 'Title range from 10 to 100 characters',
-                    'title.unique' => 'Already exists',
-                    'title.regex'=>'This field is an invalid format',
+                    // 'short_title.min' => 'Short Title range from 3 to 100 characters',
+                    // 'short_title.max' => 'Short Title range from 3 to 100 characters',
+                    // 'short_title.regex'=>'This field is an invalid format',
+                    // 'title.min' => 'Title range from 10 to 100 characters',
+                    // 'title.max' => 'Title range from 10 to 100 characters',
+                    // 'title.unique' => 'Already exists',
+                    // 'title.regex'=>'This field is an invalid format',
                     //'image.dimensions' => 'Image range from 493 px to 640 px',
                     'image.mimes' => 'Upload a valid image file (e.g., .jpg, .jpeg, .png)',
                     'image.image' => 'Upload a valid image file (e.g., .jpg, .jpeg, .png)',
                     'image.max' => 'The field must not be greater than 1 MB.',
-                    'sequence.numeric'=> 'This field is an invalid format',
+                    //'sequence.numeric'=> 'This field is an invalid format',
 
                 ]
             );
@@ -73,7 +73,7 @@ class BannerControllerFilter extends Controller
             // Insert data into the database
             $banner = new Banner();
             //$banner->short_title = $request->short_title;
-            $banner->title = $request->title;
+           // $banner->title = $request->title;
             $banner->image = $imagePath;
             $banner->description = $request->description;
             //$banner->sequence = $request->sequence;
@@ -106,13 +106,13 @@ class BannerControllerFilter extends Controller
                     //     'max:100',
                     //     'regex:/^(?=.*[a-zA-Z])(?!.*<script>)[a-zA-Z0-9\s!@#$%^&*()_+{}\[\]:;\"\'<>,.?\/\\\\|-]+$/i'
                     // ],
-                    'title' => [
-                        'required',
-                        'min:10',
-                        'max:100',
-                        'regex:/^(?=.*[a-zA-Z])(?!.*<script>)[a-zA-Z0-9\s!@#$%^&*()_+{}\[\]:;\"\'<>,.?\/\\\\|-]+$/i',
-                        'unique:banners,title,' . $request->id
-                    ],
+                    // 'title' => [
+                    //     'required',
+                    //     'min:10',
+                    //     'max:100',
+                    //     'regex:/^(?=.*[a-zA-Z])(?!.*<script>)[a-zA-Z0-9\s!@#$%^&*()_+{}\[\]:;\"\'<>,.?\/\\\\|-]+$/i',
+                    //     'unique:banners,title,' . $request->id
+                    // ],
                     'image' => 'nullable|image|mimes:jpeg,jpg,png|max:1024',
                     'description' => 'nullable',
                     //'sequence' => 'required|numeric',
@@ -120,18 +120,18 @@ class BannerControllerFilter extends Controller
                     // 'status' => 'required'
                 ],
                     [
-                    'short_title.min' => 'Short Title range from 3 to 100 characters',
-                    'short_title.max' => 'Short Title range from 3 to 100 characters',
-                    'short_title.regex'=>'This field is an invalid format',
-                    'title.min' => 'Title range from 10 to 100 characters',
-                    'title.max' => 'Title range from 10 to 100 characters',
-                    'title.unique' => 'Already exists',
-                    'title.regex'=>'This field is an invalid format',
+                    // 'short_title.min' => 'Short Title range from 3 to 100 characters',
+                    // 'short_title.max' => 'Short Title range from 3 to 100 characters',
+                    // 'short_title.regex'=>'This field is an invalid format',
+                    // 'title.min' => 'Title range from 10 to 100 characters',
+                    // 'title.max' => 'Title range from 10 to 100 characters',
+                    // 'title.unique' => 'Already exists',
+                    // 'title.regex'=>'This field is an invalid format',
                     //'image.dimensions' => 'Image range from 493 px to 640 px',
                     'image.mimes' => 'Upload a valid image file (e.g., .jpg, .jpeg, .png)',
                     'image.image' => 'Upload a valid image file (e.g., .jpg, .jpeg, .png)',
                     'image.max' => 'The field must not be greater than 1 MB.',
-                    'sequence.numeric'=> 'This field is an invalid format',
+                    //'sequence.numeric'=> 'This field is an invalid format',
 
                 ]
             );
@@ -153,7 +153,7 @@ class BannerControllerFilter extends Controller
 
             // Update other fields
            // $banner->short_title = $request->short_title;
-            $banner->title = $request->title;
+            //$banner->title = $request->title;
             $banner->description = $request->description;
             //$banner->sequence = $request->sequence;
             $banner->link = $request->link;

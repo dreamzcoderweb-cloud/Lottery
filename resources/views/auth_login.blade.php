@@ -104,7 +104,7 @@
                                         </g>
                                     </svg>
                                 </span>
-                                <span class="app-brand-text demo text-heading fw-bold">super admin</span>
+                                <span class="app-brand-text demo text-heading fw-bold">Lucky Baby admin</span>
                             </a>
                         </div>
                         <!-- /Logo -->
