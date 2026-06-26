@@ -319,61 +319,117 @@
             </div>
         @endif
 
-        {{-- <!-- Losers Section -->
+        <!-- Losers Section -->
         @if (!empty($losers))
             <div class="card mb-4">
                 <div class="card-header bg-danger text-white">
                     <h5 class="card-title mb-0">
                         <i class="bx bx-x-circle me-2"></i>
-                        Losing Tickets ({{ count($losers) }})
+                        Lose Tickets ({{ count($losers) }})
                     </h5>
                 </div>
                 <div class="card-body">
+                    @php
+
+                        // Group losers by group_name and ticket_amt, and aggregate quantities by slot_digit
+                        $groupedLosers = [];
+                        foreach ($losers as $loser) {
+                            $gName = strtoupper($loser['group_name'] ?? 'N/A');
+                            $ticketAmt = (int)($loser['ticket_amt'] ?? 0);
+                            $gNameKey = $gName . ' (' . $ticketAmt . ')';
+                            $digit = $loser['slot_digit'] ?? '-';
+
+                            if (!isset($groupedLosers[$gNameKey][$digit])) {
+                                $groupedLosers[$gNameKey][$digit] = [
+                                    'quantity' => 0,
+                                ];
+                            }
+                            $groupedLosers[$gNameKey][$digit]['quantity'] += $loser['quantity'] ?? 0;
+                        }
+
+                        // Reformat groupedLosers to have the list style expected by the downstream code
+                        foreach ($groupedLosers as $gNameKey => $digits) {
+                            $items = [];
+                            foreach ($digits as $digit => $digitData) {
+                                $items[] = [
+                                    'digit' => $digit,
+                                    'quantity' => $digitData['quantity'],
+                                ];
+                            }
+                            $groupedLosers[$gNameKey] = $items;
+                        }
+
+                        // Sort group names: alphabetical groups first, then numeric groups sorted numerically.
+                        // For the same group name, sort by ticket amount descending (e.g. ABC (300) before ABC (200)).
+                        uksort($groupedLosers, function ($a, $b) {
+                            // Extract group name and ticket amount from keys like "ABC (300)"
+                            preg_match('/^([^\s(]+)(?:\s*\((\d+)\))?$/', $a, $matchesA);
+                            preg_match('/^([^\s(]+)(?:\s*\((\d+)\))?$/', $b, $matchesB);
+
+                            $gNameA = $matchesA[1] ?? $a;
+                            $amtA = isset($matchesA[2]) ? (int)$matchesA[2] : 0;
+
+                            $gNameB = $matchesB[1] ?? $b;
+                            $amtB = isset($matchesB[2]) ? (int)$matchesB[2] : 0;
+
+                            if ($gNameA !== $gNameB) {
+                                $aIsNumeric = is_numeric($gNameA);
+                                $bIsNumeric = is_numeric($gNameB);
+
+                                if ($aIsNumeric && !$bIsNumeric) {
+                                    return 1;
+                                }
+                                if (!$aIsNumeric && $bIsNumeric) {
+                                    return -1;
+                                }
+                                if ($aIsNumeric && $bIsNumeric) {
+                                    return (int)$gNameA <=> (int)$gNameB;
+                                }
+                                if (strlen($gNameA) !== strlen($gNameB)) {
+                                    return strlen($gNameA) <=> strlen($gNameB);
+                                }
+                                return strcmp($gNameA, $gNameB);
+                            }
+
+                            // Sort by ticket amount descending when group name is identical
+                            return $amtB <=> $amtA;
+                        });
+
+                        $maxRowsLosers = 0;
+                        foreach ($groupedLosers as $gName => $items) {
+                            $maxRowsLosers = max($maxRowsLosers, count($items));
+                        }
+                    @endphp
+
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table id="lose-tickets-table" class="table table-bordered table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Ticket #</th>
-                                    <th>Customer Name</th>
-                                    <th>Mobile</th>
-                                    <th>Customer ID</th>
-                                    <th>Digit</th>
-                                    <th>Group</th>
-                                    <th>Quantity</th>
-                                    <th>Ticket Amount</th>
-                                    <th>Purchase Time</th>
-                                    <th>Status</th>
+                                    @foreach ($groupedLosers as $gName => $items)
+                                        <th colspan="2" class="text-center"><strong>{{ $gName }}</strong></th>
+                                    @endforeach
+                                </tr>
+                                <tr>
+                                    @foreach ($groupedLosers as $gName => $items)
+                                        <th class="text-center text-muted small" style="font-size: 0.85rem;">N</th>
+                                        <th class="text-center text-muted small" style="font-size: 0.85rem;">Q</th>
+                                    @endforeach
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($losers as $loser)
-                                    <tr style="border-left: 4px solid #dc3545; opacity: 0.9;">
-                                        <td>
-                                            <strong class="text-primary">{{ $loser['ticket_number'] }}</strong>
-                                        </td>
-                                        <td>{{ $loser['customer_name'] }}</td>
-                                        <td>
-                                            <a href="tel:{{ $loser['customer_mobile'] }}" class="text-decoration-none">
-                                                {{ $loser['customer_mobile'] }}
-                                            </a>
-                                        </td>
-                                        <td><span class="badge bg-light text-dark">{{ $loser['customer_id'] }}</span></td>
-                                        <td>
-                                            <span class="badge bg-warning">{{ $loser['slot_digit'] }}</span>
-                                        </td>
-                                        <td>{{ $loser['group_name'] }}</td>
-                                        <td class="text-center">
-                                            <strong>{{ $loser['quantity'] }}</strong>
-                                        </td>
-                                        <td>₹{{ number_format($loser['ticket_amount'], 2) }}</td>
-                                        <td>
-                                            <small class="text-muted">{{ $loser['booking_time'] ?? '-' }}</small>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-danger">✗ LOST</span>
-                                        </td>
+                                @for ($i = 0; $i < $maxRowsLosers; $i++)
+                                    <tr>
+                                        @foreach ($groupedLosers as $gName => $items)
+                                            @if (isset($items[$i]))
+                                                <td class="text-center">{{ $items[$i]['digit'] }}</td>
+                                                <td class="text-center text-danger"><strong>{{ $items[$i]['quantity'] }}</strong></td>
+                                            @else
+                                                <td class="bg-light text-center text-muted">-</td>
+                                                <td class="bg-light text-center text-muted">-</td>
+                                            @endif
+                                        @endforeach
                                     </tr>
-                                @endforeach
+                                @endfor
                             </tbody>
                         </table>
                     </div>
@@ -386,7 +442,7 @@
                             </div>
                             <div class="col-md-6 text-end">
                                 <strong>Total Amount Invested:</strong>
-                                <span style="color: #dc3545; font-size: 1.1rem;">
+                                <span style="color: #dc3545; font-size: 1.1rem; font-weight: bold;">
                                     ₹{{ number_format(array_sum(array_column($losers, 'ticket_amount')), 2) }}
                                 </span>
                             </div>
@@ -397,13 +453,13 @@
         @else
             <div class="card mb-4">
                 <div class="card-header bg-info text-white">
-                    <h5 class="card-title mb-0">Losing Tickets</h5>
+                    <h5 class="card-title mb-0">Lose Tickets</h5>
                 </div>
                 <div class="card-body text-center text-muted">
                     <p class="mb-0">No losing tickets for this slot.</p>
                 </div>
             </div>
-        @endif --}}
+        @endif
 
         <!-- Overall Summary -->
         <div class="card mb-4">

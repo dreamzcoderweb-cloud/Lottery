@@ -98,7 +98,7 @@ class WinningsSlotsReportGroupingTest extends TestCase
             'qty' => 2,
             'amount' => 10.00,
             'status' => 'success',
-            'is_winner' => 1,
+            'is_winner' => 'true',
             'win_amount' => 500.00,
             'booking_time' => now()->subHours(2)->toDateTimeString(),
             'close_time' => '12:00:00',
@@ -114,7 +114,7 @@ class WinningsSlotsReportGroupingTest extends TestCase
             'qty' => 2,
             'amount' => 200.00,
             'status' => 'success',
-            'is_winner' => 1,
+            'is_winner' => 'true',
             'win_amount' => 3000.00,
             'booking_time' => now()->subHours(2)->toDateTimeString(),
             'close_time' => '12:00:00',
@@ -130,8 +130,25 @@ class WinningsSlotsReportGroupingTest extends TestCase
             'qty' => 3,
             'amount' => 300.00,
             'status' => 'success',
-            'is_winner' => 1,
+            'is_winner' => 'true',
             'win_amount' => 5000.00,
+            'booking_time' => now()->subHours(2)->toDateTimeString(),
+            'close_time' => '12:00:00',
+            'payment_status' => 'paid',
+        ]);
+
+        // Create a losing booking for slotItem200 (200.00 ticket_amt)
+        Booking::create([
+            'customer_id' => $customer->customer_id,
+            'slot_id' => $slot->slot_id,
+            'slot_items_id' => $slotItem200->slot_items_id,
+            'title_id' => 3,
+            'digits' => 123,
+            'qty' => 5,
+            'amount' => 1000.00, // 5 * 200
+            'status' => 'success',
+            'is_winner' => 'false',
+            'win_amount' => 0.00,
             'booking_time' => now()->subHours(2)->toDateTimeString(),
             'close_time' => '12:00:00',
             'payment_status' => 'paid',
@@ -158,5 +175,11 @@ class WinningsSlotsReportGroupingTest extends TestCase
         $response->assertSee('Third Prize');
         $response->assertSee('₹3,000.00');
         $response->assertSee('₹5,000.00');
+
+        // 10. Verify Lose Tickets section is present and displays the losing tickets details
+        $response->assertSee('Lose Tickets (1)');
+        $response->assertSee('Total Losing Tickets:');
+        $response->assertSee('Total Amount Invested:');
+        $response->assertSee('₹1,000.00');
     }
 }

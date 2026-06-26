@@ -173,6 +173,8 @@ class ReportController extends Controller
                 $bookingTime = Carbon::parse($booking->booking_time, $tz)->format('d-m-Y h:i A');
             }
 
+            $isWinner = $booking->is_winner === true || $booking->is_winner === 'true' || $booking->is_winner === 1 || $booking->is_winner === '1';
+
             $bookingData = [
                 'booking_id' => $booking->booking_id,
                 'customer_name' => $booking->customer->name ?? 'N/A',
@@ -185,16 +187,15 @@ class ReportController extends Controller
                 'ticket_amt' => (float) ($booking->slotItem->ticket_amt ?? 0),
                 'booking_time' => $bookingTime,
                 'quantity' => $booking->qty,
-                'win_amount' => $booking->is_winner ? ((float) ($booking->win_amount ?? 0)) : 0,
+                'win_amount' => $isWinner ? ((float) ($booking->win_amount ?? 0)) : 0,
             ];
 
-            if ($booking->is_winner) {
+            if ($isWinner) {
                 $details['winners'][] = $bookingData;
             } else {
                 $details['losers'][] = $bookingData;
             }
         }
-
         return $details;
     }
 
