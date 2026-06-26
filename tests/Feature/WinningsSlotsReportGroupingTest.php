@@ -160,10 +160,9 @@ class WinningsSlotsReportGroupingTest extends TestCase
         // 6. Assert response success
         $response->assertStatus(200);
 
-        // 7. Verify that columns A (10), ABC (300), and ABC (200) are all displayed
-        $response->assertSee('A (10)');
-        $response->assertSee('ABC (300)');
-        $response->assertSee('ABC (200)');
+        // 7. Verify that Winning Groups table items (group names) are displayed
+        $response->assertSee('A');
+        $response->assertSee('ABC');
 
         // 8. Verify Win Amount column is present, and single digit item (7) shows win amount (500.00)
         $response->assertSee('Win Amount');
@@ -176,10 +175,28 @@ class WinningsSlotsReportGroupingTest extends TestCase
         $response->assertSee('₹3,000.00');
         $response->assertSee('₹5,000.00');
 
-        // 10. Verify Lose Tickets section is present and displays the losing tickets details
-        $response->assertSee('Lose Tickets (1)');
-        $response->assertSee('Total Losing Tickets:');
-        $response->assertSee('Total Amount Invested:');
-        $response->assertSee('₹1,000.00');
+        // 10. Verify that ticket tables are NOT displayed on the main slot details page
+        $response->assertDontSee('Winning Tickets (');
+        $response->assertDontSee('Lose Tickets (');
+
+        // 11. Verify that the "View Tickets" button is displayed on the slot details page
+        $response->assertSee('View Tickets');
+        $response->assertSee(route('admin.reports.slot-tickets', ['slot_id' => $slot->slot_id]));
+
+        // 12. Request the new separate tickets page
+        $ticketsResponse = $this->get(route('admin.reports.slot-tickets', ['slot_id' => $slot->slot_id]));
+        $ticketsResponse->assertStatus(200);
+
+        // 13. Verify that the ticket tables and their headers are displayed on the tickets page
+        $ticketsResponse->assertSee('A (10)');
+        $ticketsResponse->assertSee('ABC (300)');
+        $ticketsResponse->assertSee('ABC (200)');
+        $ticketsResponse->assertSee('Winning Tickets (3)');
+        $ticketsResponse->assertSee('Lose Tickets (1)');
+        $ticketsResponse->assertSee('Total Losing Tickets:');
+        $ticketsResponse->assertSee('Total Amount Invested:');
+        $ticketsResponse->assertSee('₹1,000.00');
+        $ticketsResponse->assertSee('Total Winning Tickets:');
+        $ticketsResponse->assertSee('Total Win Amount:');
     }
 }

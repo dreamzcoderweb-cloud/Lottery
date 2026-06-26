@@ -120,4 +120,8 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
     Route::get('reports/winnings-slots/{slot_id}', [ReportController::class, 'slotCustomerDetails'])
         ->middleware('permission:reports.winningsslots')
         ->name('reports.slot-details');
+
+    Route::get('reports/winnings-slots/{slot_id}/tickets', [ReportController::class, 'slotTickets'])
+        ->middleware('permission:reports.winningsslots')
+        ->name('reports.slot-tickets');
 });

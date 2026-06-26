@@ -164,11 +164,18 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <a href="{{ route('admin.reports.slot-details', ['slot_id' => $slot['slot_id']]) }}"
-                                       class="btn btn-sm btn-info"
-                                       title="View Details">
-                                        <i class="bx bx-show"></i> View
-                                    </a>
+                                    <div class="d-flex flex-column gap-1">
+                                        <a href="{{ route('admin.reports.slot-details', ['slot_id' => $slot['slot_id']]) }}"
+                                           class="btn btn-sm btn-info"
+                                           title="View Details">
+                                            <i class="bx bx-show"></i> View
+                                        </a>
+                                        <a href="{{ route('admin.reports.slot-tickets', $slot['slot_id']) }}"
+                                           class="btn btn-sm btn-primary"
+                                           title="View Tickets">
+                                            <i class="bx bx-receipt"></i> View Tickets
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach

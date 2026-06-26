@@ -200,9 +200,9 @@ class ReportController extends Controller
     }
 
     /**
-     * Display customer details for a specific slot
+     * Fetch formatted slot report data
      */
-    public function slotCustomerDetails($slot_id)
+    private function getSlotReportData($slot_id)
     {
         $tz = 'Asia/Kolkata';
 
@@ -260,8 +260,7 @@ class ReportController extends Controller
         $totalWinAmount = array_sum(array_column($winners, 'win_amount'));
         $totalInvested = array_sum(array_column($losers, 'ticket_amount'));
 
-        // Prepare data
-        $data = [
+        return [
             'slot_id' => $slot->slot_id,
             'main_title' => $slot->main_title,
             'short_title' => $slot->short_title,
@@ -281,7 +280,23 @@ class ReportController extends Controller
                 'total_invested' => $totalInvested,
             ]
         ];
+    }
 
+    /**
+     * Display customer details for a specific slot
+     */
+    public function slotCustomerDetails($slot_id)
+    {
+        $data = $this->getSlotReportData($slot_id);
         return view('Report.slot-details', compact('data'));
+    }
+
+    /**
+     * Display winning and losing ticket details for a specific slot
+     */
+    public function slotTickets($slot_id)
+    {
+        $data = $this->getSlotReportData($slot_id);
+        return view('Report.slot-tickets', compact('data'));
     }
 }
