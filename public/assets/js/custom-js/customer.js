@@ -67,28 +67,8 @@ $(document).ready(function () {
     // datatable js end
 
     // datatable for winning-tickets-table lose-tickets-table
-    if ($('#winning-tickets-table').length) {
-        new DataTable('#winning-tickets-table', {
-            layout: {
-                topStart: [
-                    'pageLength',
-                    {
-                        buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
-                    }
-                ],
-                topEnd: 'search'
-            },
-            ordering: false,
-            paging: true,
-            info: true,
-            oLanguage: {
-                sLengthMenu: "_MENU_"
-            }
-        });
-    }
-
-    if ($('#lose-tickets-table').length) {
-        new DataTable('#lose-tickets-table', {
+    if ($('#tickets-table').length) {
+        new DataTable('#tickets-table', {
             layout: {
                 topStart: [
                     'pageLength',

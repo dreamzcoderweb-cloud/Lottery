@@ -187,16 +187,19 @@ class WinningsSlotsReportGroupingTest extends TestCase
         $ticketsResponse = $this->get(route('admin.reports.slot-tickets', ['slot_id' => $slot->slot_id]));
         $ticketsResponse->assertStatus(200);
 
-        // 13. Verify that the ticket tables and their headers are displayed on the tickets page
+        // 13. Verify that the ticket table and headers are displayed on the tickets page
         $ticketsResponse->assertSee('A (10)');
         $ticketsResponse->assertSee('ABC (300)');
         $ticketsResponse->assertSee('ABC (200)');
-        $ticketsResponse->assertSee('Winning Tickets (3)');
-        $ticketsResponse->assertSee('Lose Tickets (1)');
-        $ticketsResponse->assertSee('Total Losing Tickets:');
+        $ticketsResponse->assertSee('Ticket Details (4)');
+        $ticketsResponse->assertDontSee('Winning Tickets (3)');
+        $ticketsResponse->assertDontSee('Lose Tickets (1)');
+        $ticketsResponse->assertSee('Total Tickets:');
+        $ticketsResponse->assertSee('Total Winners:');
+        $ticketsResponse->assertSee('Total Losers:');
+        $ticketsResponse->assertSee('Total Win Amount:');
         $ticketsResponse->assertSee('Total Amount Invested:');
         $ticketsResponse->assertSee('₹1,000.00');
-        $ticketsResponse->assertSee('Total Winning Tickets:');
-        $ticketsResponse->assertSee('Total Win Amount:');
+        $ticketsResponse->assertSee('₹8,500.00');
     }
 }
