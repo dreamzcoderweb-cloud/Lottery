@@ -35,10 +35,7 @@ class ReportController extends Controller
                 'status',
             ])
 
-            // Only slots whose result process completed
-            ->whereHas('bookings', function ($q) {
-                $q->whereNotNull('is_winner');
-            })
+            ->whereHas('bookings')
 
             ->with([
                 'items' => function ($q) use ($title) {
@@ -163,7 +160,6 @@ class ReportController extends Controller
 
         // Fetch all bookings for this slot with customer details
         $bookings = Booking::where('slot_id', $slot->slot_id)
-            ->whereNotNull('is_winner')
             ->with(['customer', 'slotItem'])
             ->get();
 

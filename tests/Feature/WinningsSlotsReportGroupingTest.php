@@ -202,4 +202,69 @@ class WinningsSlotsReportGroupingTest extends TestCase
         $ticketsResponse->assertSee('₹1,000.00');
         $ticketsResponse->assertSee('₹8,500.00');
     }
+
+    public function test_report_includes_null_is_winner_bookings(): void
+    {
+        // 1. Create a customer
+        $customer = Customer::create([
+            'name' => 'John Doe',
+            'mobile' => '9876543211',
+            'password' => bcrypt('password123'),
+        ]);
+
+        // 2. Create a slot
+        $slot = Slot::create([
+            'main_title' => 'Test Mega Draw',
+            'draw_date' => now('Asia/Kolkata')->subDays(1)->format('Y-m-d'),
+            'booking_close_time' => '12:00:00',
+            'draw_time' => '12:30:00',
+            'short_title' => 'TMD',
+            'title' => '3',
+            'slug' => 'test-mega-draw',
+            'status' => 'Active',
+        ]);
+
+        $slotItem = SlotItem::create([
+            'slot_id' => $slot->slot_id,
+            'title' => 3,
+            'group_name' => 'XYZ',
+            'digit' => 789,
+            'color' => '#000000',
+            'first_price' => 3000.00,
+            'second_price' => 2000.00,
+            'third_price' => 1000.00,
+            'ticket_amt' => 100.00,
+        ]);
+
+        // Create a booking with is_winner = null
+        Booking::create([
+            'customer_id' => $customer->customer_id,
+            'slot_id' => $slot->slot_id,
+            'slot_items_id' => $slotItem->slot_items_id,
+            'title_id' => 3,
+            'digits' => 789,
+            'qty' => 5,
+            'amount' => 500.00,
+            'status' => 'success',
+            'is_winner' => null,
+            'win_amount' => 0.00,
+            'booking_time' => now()->subHours(2)->toDateTimeString(),
+            'close_time' => '12:00:00',
+            'payment_status' => 'paid',
+        ]);
+
+        // Request the main Winning Slots Report list page
+        $listResponse = $this->get(route('admin.reports.winningsslots'));
+        $listResponse->assertStatus(200);
+        $listResponse->assertSee('Test Mega Draw');
+
+        // Request the tickets page
+        $ticketsResponse = $this->get(route('admin.reports.slot-tickets', ['slot_id' => $slot->slot_id]));
+        $ticketsResponse->assertStatus(200);
+
+        // Verify that the ticket table shows the NULL is_winner ticket
+        $ticketsResponse->assertSee('XYZ (100)');
+        $ticketsResponse->assertSee('Ticket Details (1)');
+        $ticketsResponse->assertSee('Total Tickets:</strong> 1', false);
+    }
 }

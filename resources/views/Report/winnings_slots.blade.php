@@ -108,7 +108,7 @@
                                     @else
                                         -
                                     @endif
-                                    <div class="booking-summary-template d-none">
+                                    {{-- <div class="booking-summary-template d-none">
                                         <div class="table-light p-3">
                                             <div class="row align-items-center g-3">
                                                 <div class="col-md-2"><strong>Booking Summary</strong></div>
@@ -161,7 +161,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                 </td>
                                 <td>
                                     <div class="d-flex flex-column gap-1">
