@@ -157,6 +157,7 @@
                                     <th>Draw Date</th>
                                     <th>Draw Time</th>
                                     <th>Title</th>
+                                    <th>Group</th>
                                     <th>Original Digit</th>
                                     <th>Digit</th>
                                     <th>Qty</th>
@@ -192,6 +193,7 @@
                                         @endphp
 
                                         <td>{{ $finalTitle }}</td>
+                                        <td>{{ $b->slotItem?->group_name }}</td>
                                         <td>{{ optional($b->slotItem)->digit ?? 'N/A' }}</td>
                                         <td>{{ $b->digits }}</td>
                                         <td>{{ $b->qty }}</td>
