@@ -66,13 +66,15 @@
                 $allTickets[] = $loser;
             }
 
-            // Group all tickets by group_name and ticket_amt, and aggregate quantities by slot_digit
+            // Group all tickets by slot_items_id, group_name and ticket_amt, and aggregate quantities by booked_digits
             $groupedTickets = [];
             foreach ($allTickets as $ticket) {
                 $gName = strtoupper($ticket['group_name'] ?? 'N/A');
                 $ticketAmt = (int)($ticket['ticket_amt'] ?? 0);
-                $gNameKey = $gName . ' (' . $ticketAmt . ')';
-                $digit = $ticket['slot_digit'] ?? '-';
+                $slotItemId = $ticket['slot_items_id'] ?? '';
+                // Include slot_items_id to prevent combining different slot items with same group name
+                $gNameKey = $gName . ' (' . $ticketAmt . ') - ID:' . $slotItemId;
+                $digit = $ticket['booked_digits'] ?? '-';
                 $isWinner = $ticket['is_winner_ticket'] ?? false;
 
                 if (!isset($groupedTickets[$gNameKey][$digit])) {
@@ -154,7 +156,11 @@
                             <thead class="table-light">
                                 <tr>
                                     @foreach ($groupedTickets as $gName => $items)
-                                        <th colspan="2" class="text-center"><strong>{{ $gName }}</strong></th>
+                                        @php
+                                            // Extract display name without ID suffix
+                                            $displayName = preg_replace('/ - ID:\d+$/', '', $gName);
+                                        @endphp
+                                        <th colspan="2" class="text-center"><strong>{{ $displayName }}</strong></th>
                                     @endforeach
                                 </tr>
                                 <tr>

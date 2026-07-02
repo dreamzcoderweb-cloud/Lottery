@@ -162,7 +162,6 @@ class ReportController extends Controller
         $bookings = Booking::where('slot_id', $slot->slot_id)
             ->with(['customer', 'slotItem'])
             ->get();
-
         foreach ($bookings as $booking) {
             $bookingTime = null;
             if (!empty($booking->booking_time)) {
@@ -171,26 +170,58 @@ class ReportController extends Controller
 
             $isWinner = $booking->is_winner === true || $booking->is_winner === 'true' || $booking->is_winner === 1 || $booking->is_winner === '1';
 
-            $bookingData = [
-                'booking_id' => $booking->booking_id,
-                'customer_name' => $booking->customer->name ?? 'N/A',
-                'customer_mobile' => $booking->customer->mobile ?? 'N/A',
-                'customer_id' => $booking->customer_id,
-                'ticket_number' => $booking->booking_id, // Using booking_id as ticket number
-                'slot_digit' => $booking->slotItem->digit ?? '-',
-                'group_name' => strtoupper($booking->slotItem->group_name ?? 'N/A'),
-                'ticket_amount' => (float) ($booking->amount ?? 0),
-                'ticket_amt' => (float) ($booking->slotItem->ticket_amt ?? 0),
-                'booking_time' => $bookingTime,
-                'quantity' => $booking->qty,
-                'win_amount' => $isWinner ? ((float) ($booking->win_amount ?? 0)) : 0,
-            ];
+            $qty = max(1, (int)$booking->qty);
+            // Create one entry for each quantity
+            for ($i = 1; $i <= $qty; $i++) {
 
-            if ($isWinner) {
-                $details['winners'][] = $bookingData;
-            } else {
-                $details['losers'][] = $bookingData;
+                $bookingData = [
+                    'booking_id'        => $booking->booking_id,
+                    'customer_name'     => $booking->customer->name ?? 'N/A',
+                    'customer_mobile'   => $booking->customer->mobile ?? 'N/A',
+                    'customer_id'       => $booking->customer_id,
+
+                    // Ticket Number
+                    'ticket_number'     => $booking->booking_id . '-' . $i,
+
+                    'slot_items_id'     => $booking->slot_items_id,
+                    'slot_digit'        => $booking->slotItem->digit ?? '-',
+                    'booked_digits'     => $booking->digits ?? '-',
+                    'group_name'        => strtoupper($booking->slotItem->group_name ?? 'N/A'),
+                    'ticket_amount'     => (float)($booking->amount ?? 0),
+                    'ticket_amt'        => (float)($booking->slotItem->ticket_amt ?? 0),
+                    'booking_time'      => $bookingTime,
+                    'quantity'          => 1,
+                    'win_amount'        => $isWinner ? (float)($booking->win_amount ?? 0) : 0,
+                ];
+
+                if ($isWinner) {
+                    $details['winners'][] = $bookingData;
+                } else {
+                    $details['losers'][] = $bookingData;
+                }
             }
+            // $bookingData = [
+            //     'booking_id' => $booking->booking_id,
+            //     'customer_name' => $booking->customer->name ?? 'N/A',
+            //     'customer_mobile' => $booking->customer->mobile ?? 'N/A',
+            //     'customer_id' => $booking->customer_id,
+            //     'ticket_number' => $booking->booking_id, // Using booking_id as ticket number
+            //     'slot_items_id' => $booking->slot_items_id,
+            //     'slot_digit' => $booking->slotItem->digit ?? '-',
+            //     'booked_digits' => $booking->digits ?? '-',
+            //     'group_name' => strtoupper($booking->slotItem->group_name ?? 'N/A'),
+            //     'ticket_amount' => (float) ($booking->amount ?? 0),
+            //     'ticket_amt' => (float) ($booking->slotItem->ticket_amt ?? 0),
+            //     'booking_time' => $bookingTime,
+            //     'quantity' => $booking->qty,
+            //     'win_amount' => $isWinner ? ((float) ($booking->win_amount ?? 0)) : 0,
+            // ];
+
+            // if ($isWinner) {
+            //     $details['winners'][] = $bookingData;
+            // } else {
+            //     $details['losers'][] = $bookingData;
+            // }
         }
         return $details;
     }
@@ -247,7 +278,6 @@ class ReportController extends Controller
 
         // Get customer details
         $customerDetails = $this->getCustomerBookingDetails($slot, $tz);
-
         // Calculate summary stats
         $winners = $customerDetails['winners'] ?? [];
         $losers = $customerDetails['losers'] ?? [];

@@ -71,4 +71,8 @@ class Customer extends Authenticatable
     {
         return $this->hasMany(self::class, 'referred_by_customer_id', 'customer_id');
     }
+    public function slotitems()
+    {
+        return $this->hasMany(SlotItem::class, 'slot_items_id ', 'slot_items_id ');
+    }
 }

@@ -122,6 +122,33 @@ class BookingController extends Controller
 
                 ]);
 
+                // Validate that booked digits match the slot_item configuration
+                foreach ($validated['items'] as $index => $item) {
+                    $slotItem = SlotItem::find($item['slot_item_id']);
+
+                    if (!$slotItem) {
+                        DB::rollBack();
+                        return response()->json([
+                            'status' => false,
+                            'message' => "Slot item not found for booking item #" . ($index + 1)
+                        ], 404);
+                    }
+
+                    // Verify the booked digit matches the slot item's configured digit
+                    if ((int)$item['digits'] !== (int)$slotItem->digit) {
+                        DB::rollBack();
+                        return response()->json([
+                            'status' => false,
+                            'message' => "Booking item #" . ($index + 1) . " - Digit {$item['digits']} does not match configured digit {$slotItem->digit} for this slot item",
+                            'details' => [
+                                'booked_digit' => $item['digits'],
+                                'configured_digit' => $slotItem->digit,
+                                'group_name' => $slotItem->group_name,
+                            ]
+                        ], 422);
+                    }
+                }
+
                 $customerId = auth()->id();
 
                 // TOTAL BOOKING AMOUNT

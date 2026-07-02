@@ -157,6 +157,7 @@
                                     <th>Draw Date</th>
                                     <th>Draw Time</th>
                                     <th>Title</th>
+                                    <th>Original Digit</th>
                                     <th>Digit</th>
                                     <th>Qty</th>
                                     <th>Amount</th>
@@ -191,6 +192,7 @@
                                         @endphp
 
                                         <td>{{ $finalTitle }}</td>
+                                        <td>{{ optional($b->slotItem)->digit ?? 'N/A' }}</td>
                                         <td>{{ $b->digits }}</td>
                                         <td>{{ $b->qty }}</td>
                                         <td>{{ number_format((float) $b->amount, 2) }}</td>
