@@ -105,7 +105,7 @@ class BookingController extends Controller
 
                     'items.*.digits' => [
                         'required',
-                        'integer'
+                        'regex:/^\d+$/'
                     ],
 
                     'items.*.qty' => [
