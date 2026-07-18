@@ -172,9 +172,7 @@
                                         $itemsByCount[$n] = $slot->items
                                             ->sortBy('slot_items_id')
                                             ->filter(function ($it) use ($n) {
-                                                $digitStr = (string) ($it?->digit ?? '');
-                                                $digitStr = ltrim($digitStr, '-');
-                                                return strlen($digitStr) === $n;
+                                                return (int) ($it?->title ?? 0) === $n;
                                             })
                                             ->values();
                                     }
@@ -282,7 +280,7 @@
 
                                                 <div class="col-md-2">
                                                     <label>Digit <span class="text-danger">*</span></label>
-                                                    <input type="number"
+                                                    <input type="text"
                                                            name="digit[]"
                                                            class="form-control"
                                                            required
@@ -366,7 +364,7 @@
 
                                                 <div class="col-md-2">
                                                     <label>Digit <span class="text-danger">*</span></label>
-                                                    <input type="number"
+                                                    <input type="text"
                                                            name="digit[]"
                                                            class="form-control"
                                                            required
@@ -472,7 +470,7 @@
 
                                         <div class="col-md-2">
                                             <label>Digit <span class="text-danger">*</span></label>
-                                            <input type="number"
+                                            <input type="text"
                                                    name="digit[]"
                                                    class="form-control"
                                                    required
@@ -772,7 +770,7 @@ $(document).ready(function(){
                     </div>
                     <div class="col-md-2">
                         <label>Digit <span class="text-danger">*</span></label>
-                        <input type="number" name="digit[]" class="form-control" placeholder="Digit" maxlength="${count}" value="${String(dVal).replace(/"/g, '&quot;')}" required>
+                        <input type="text" name="digit[]" class="form-control" placeholder="Digit" maxlength="${count}" value="${String(dVal).replace(/"/g, '&quot;')}" required>
                     </div>
                     <div class="col-md-2">
                         <label>Color</label>
@@ -943,7 +941,7 @@ $(document).ready(function(){
                 </div>
                 <div class="col-md-2">
                     <label>Digit <span class="text-danger">*</span></label>
-                    <input type="number" name="digit[]" class="form-control" placeholder="Digit" maxlength="${count}" required>
+                    <input type="text" name="digit[]" class="form-control" placeholder="Digit" maxlength="${count}" required>
                 </div>
                 <div class="col-md-2">
                     <label>Color</label>

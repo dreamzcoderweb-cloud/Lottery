@@ -311,7 +311,7 @@ class ReportController extends Controller
 
                 return [
                     'group_name' => strtoupper($item->group_name),
-                    'digit'      => (int) $item->digit,
+                    'digit'      => $item->digit,
                     'color'      => $item->color,
                     'win_amount' => $item->win_amount,
                     'ticket_amt' => $item->ticket_amt,
