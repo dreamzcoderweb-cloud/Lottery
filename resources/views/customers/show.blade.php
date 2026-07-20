@@ -167,7 +167,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($bookings as $b)
+                                @foreach ($bookings as $b)
                                     @php
                                         $isWinner = (string) $b->is_winner === 'true' || (int) $b->is_winner === 1;
                                     @endphp
@@ -207,11 +207,7 @@
                                         </td>
                                         <td>{{ number_format((float) ($b->win_amount ?? 0), 2) }}</td>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="10" class="text-center text-muted py-3">No tickets found.</td>
-                                    </tr>
-                                @endforelse
+                                @endforeach
                             </tbody>
                         </table>
                     </div>

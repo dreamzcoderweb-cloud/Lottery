@@ -1,23 +1,22 @@
 $(document).ready(function () {
-    // datatable js start
-    new DataTable('#customers-table', {
-        layout: {},
-        "ordering": false,
-        oLanguage: {
-            sLengthMenu: "_MENU_",
-        }
-    });
-    // datatable js end
+    if ($.fn.dataTable) {
+        $.fn.dataTable.ext.errMode = 'none';
+    }
 
-    // datatable js start
-    new DataTable('#customer-ticket-winner', {
-        layout: {},
-        "ordering": false,
-        oLanguage: {
-            sLengthMenu: "_MENU_",
-        }
-    });
-    // datatable js end
+    if ($.fn.DataTable.isDataTable('#customer-ticket-winner')) {
+        $('#customer-ticket-winner').DataTable().destroy();
+    }
+
+    if ($('#customer-ticket-winner').length) {
+        new DataTable('#customer-ticket-winner', {
+            ordering: false,
+            layout: {},
+            oLanguage: {
+                sLengthMenu: "_MENU_",
+                sEmptyTable: "No tickets found."
+            }
+        });
+    }
 
     // datatable js start
     new DataTable('#walletRechargeTable', {

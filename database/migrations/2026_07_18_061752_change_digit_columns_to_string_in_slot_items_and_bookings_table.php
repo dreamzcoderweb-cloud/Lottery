@@ -21,13 +21,21 @@ return new class extends Migration
         });
 
         // Pad existing digits based on the title count / title_id
-        DB::table('slot_items')->whereNotNull('title')->where('title', '>', 0)->update([
-            'digit' => DB::raw("LPAD(digit, title, '0')")
-        ]);
+        if (Schema::hasColumn('slot_items', 'title')) {
+            try {
+                DB::table('slot_items')->whereNotNull('title')->where('title', '>', 0)->update([
+                    'digit' => DB::raw("LPAD(digit, title, '0')")
+                ]);
+            } catch (\Throwable $e) {}
+        }
 
-        DB::table('bookings')->whereNotNull('title_id')->where('title_id', '>', 0)->update([
-            'digits' => DB::raw("LPAD(digits, title_id, '0')")
-        ]);
+        if (Schema::hasColumn('bookings', 'title_id')) {
+            try {
+                DB::table('bookings')->whereNotNull('title_id')->where('title_id', '>', 0)->update([
+                    'digits' => DB::raw("LPAD(digits, title_id, '0')")
+                ]);
+            } catch (\Throwable $e) {}
+        }
     }
 
     /**

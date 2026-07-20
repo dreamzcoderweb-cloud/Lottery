@@ -952,7 +952,7 @@ class BookingController extends Controller
                 $winnerSlotItem &&
                 $winnerSlotItem->slot_id == $booking->slot_id &&
                 $winnerSlotItem->title == $booking->title_id &&
-                $winnerSlotItem->digit == $booking->digits
+                (string)$winnerSlotItem->digit === (string)$booking->digits
             ) {
 
                 /*
