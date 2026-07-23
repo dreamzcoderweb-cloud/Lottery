@@ -158,6 +158,9 @@ class ReportController extends Controller
             'losers' => [],
         ];
 
+        // Preload all slot items for this slot to allow dynamic matching
+        $slotItems = SlotItem::where('slot_id', $slot->slot_id)->get();
+
         // Fetch all bookings for this slot with customer details
         $bookings = Booking::where('slot_id', $slot->slot_id)
             ->with(['customer', 'slotItem'])
@@ -171,6 +174,27 @@ class ReportController extends Controller
             $isWinner = $booking->is_winner === true || $booking->is_winner === 'true' || $booking->is_winner === 1 || $booking->is_winner === '1';
 
             $qty = max(1, (int)$booking->qty);
+
+            $currentSlotItem = $booking->slotItem;
+            $bookingAmt = (float)($booking->amount ?? 0);
+            $unitAmt = $bookingAmt / $qty;
+
+            if (!$currentSlotItem || ((float)$currentSlotItem->ticket_amt !== $bookingAmt && (float)$currentSlotItem->ticket_amt !== $unitAmt)) {
+                $correctSlotItem = $slotItems->filter(function ($item) use ($booking, $currentSlotItem, $bookingAmt, $unitAmt) {
+                    if ((int)$item->title !== (int)$booking->title_id) {
+                        return false;
+                    }
+                    if ($currentSlotItem && $item->group_name !== $currentSlotItem->group_name) {
+                        return false;
+                    }
+                    return (float)$item->ticket_amt === $bookingAmt || (float)$item->ticket_amt === $unitAmt;
+                })->first();
+
+                if ($correctSlotItem) {
+                    $currentSlotItem = $correctSlotItem;
+                }
+            }
+
             // Create one entry for each quantity
             for ($i = 1; $i <= $qty; $i++) {
 
@@ -183,15 +207,15 @@ class ReportController extends Controller
                     // Ticket Number
                     'ticket_number'     => $booking->booking_id . '-' . $i,
 
-                    'slot_items_id'     => $booking->slot_items_id,
-                    'slot_digit'        => $booking->slotItem->digit ?? '-',
+                    'slot_items_id'     => $currentSlotItem ? $currentSlotItem->slot_items_id : $booking->slot_items_id,
+                    'slot_digit'        => $currentSlotItem->digit ?? '-',
                     'booked_digits'     => $booking->digits ?? '-',
-                    'group_name'        => strtoupper($booking->slotItem->group_name ?? 'N/A'),
+                    'group_name'        => strtoupper($currentSlotItem->group_name ?? 'N/A'),
                     'ticket_amount'     => (float)($booking->amount ?? 0),
-                    'ticket_amt'        => (float)($booking->slotItem->ticket_amt ?? 0),
+                    'ticket_amt'        => (float)($currentSlotItem->ticket_amt ?? 0),
                     'booking_time'      => $bookingTime,
                     'quantity'          => 1,
-                    'win_amount'        => $isWinner ? (float)($booking->win_amount ?? 0) : 0,
+                    'win_amount'        => $isWinner ? ((float)($booking->win_amount ?? 0) / $qty) : 0,
                 ];
 
                 if ($isWinner) {

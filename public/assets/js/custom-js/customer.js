@@ -2,7 +2,20 @@ $(document).ready(function () {
     if ($.fn.dataTable) {
         $.fn.dataTable.ext.errMode = 'none';
     }
-
+        if ($('#customers-table').length) {
+            new DataTable('#customers-table', {
+                layout: {
+                    topStart: 'pageLength',
+                    topEnd: 'search'
+                },
+                ordering: false,
+                paging: true,
+                info: true,
+                oLanguage: {
+                    sLengthMenu: "_MENU_"
+                }
+            });
+        }
     if ($.fn.DataTable.isDataTable('#customer-ticket-winner')) {
         $('#customer-ticket-winner').DataTable().destroy();
     }
