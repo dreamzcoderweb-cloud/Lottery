@@ -39,7 +39,6 @@ class SlotController extends Controller
         return response()->json([
             'message' => 'Sub-slots retrieved successfully',
             'sub_slots' => $slotitems,
-            'slot_commission' => $slot->commission,
         ]);
     }
 }

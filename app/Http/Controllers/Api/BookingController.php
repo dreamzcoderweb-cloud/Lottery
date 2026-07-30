@@ -874,9 +874,7 @@ class BookingController extends Controller
                 }
                 $booking->update($updateData);
 
-                $commissionPercentage = (float) ($slot->commission ?? 0);
-                $commissionAmount = ($winAmount * $commissionPercentage) / 100;
-                $creditAmount = $winAmount - $commissionAmount;
+                $creditAmount = $winAmount;
 
                 $wallet = WalletRecharge::firstOrCreate(
                     ['customer_id' => $customer->customer_id],
@@ -892,17 +890,6 @@ class BookingController extends Controller
                     'reference_no'    => 'WIN-' . $booking->booking_id,
                     'remarks'         => 'Slot winning amount credited',
                 ]);
-
-                if ($commissionAmount > 0) {
-                    WalletTransactions::create([
-                        'customer_id'     => $customer->customer_id,
-                        'type'            => 'debit',
-                        'amount'          => $commissionAmount,
-                        'payment_method'  => 'commission',
-                        'reference_no'    => 'COM-' . $booking->booking_id,
-                        'remarks'         => 'Commission deducted from winnings',
-                    ]);
-                }
 
                 $totalWinAmount += $winAmount;
 
@@ -980,9 +967,7 @@ class BookingController extends Controller
                 |--------------------------------------------------------------------------
                 */
 
-                $commissionPercentage = (float) ($slot->commission ?? 0);
-                $commissionAmount = ($winAmount * $commissionPercentage) / 100;
-                $creditAmount = $winAmount - $commissionAmount;
+                $creditAmount = $winAmount;
 
                 $wallet = WalletRecharge::firstOrCreate(
                     ['customer_id' => $customer->customer_id],
@@ -998,17 +983,6 @@ class BookingController extends Controller
                     'reference_no'    => 'WIN-' . $booking->booking_id,
                     'remarks'         => 'Slot winning amount credited',
                 ]);
-
-                if ($commissionAmount > 0) {
-                    WalletTransactions::create([
-                        'customer_id'     => $customer->customer_id,
-                        'type'            => 'debit',
-                        'amount'          => $commissionAmount,
-                        'payment_method'  => 'commission',
-                        'reference_no'    => 'COM-' . $booking->booking_id,
-                        'remarks'         => 'Commission deducted from winnings',
-                    ]);
-                }
                 /*
                 |--------------------------------------------------------------------------
                 | Response Data

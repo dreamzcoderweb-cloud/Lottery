@@ -55,7 +55,6 @@
                             <th>Draw Date</th>
                             <th>Draw Time</th>
                             <th>Booking Close Time</th>
-                            <th>Winning Groups</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -87,81 +86,6 @@
                                 <td>{{ $slot['draw_time'] ?? '-' }}</td>
                                 <td>
                                     {{ !empty($slot['booking_close_time']) ? Carbon\Carbon::parse($slot['booking_close_time'])->format('h:i A') : '-' }}
-                                </td>
-                                <td>
-                                    @if ($winningGroups->isNotEmpty())
-                                        <div class="d-flex flex-wrap gap-2">
-                                            @foreach ($winningGroups as $group)
-                                                <span class="badge bg-label-primary border">
-                                                    Group name :
-                                                    {{ $group['group_name'] ?? '-' }} -
-                                                    {{ $group['digit'] ?? '-' }}
-                                                    @if (!empty($group['win_amount']))
-                                                        | Win: &#8377;{{ number_format((float) $group['win_amount'], 2) }}
-                                                    @endif
-                                                    @if (!empty($group['ticket_amt']))
-                                                        | Ticket: &#8377;{{ number_format((float) $group['ticket_amt'], 2) }}
-                                                    @endif
-                                                </span>
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        -
-                                    @endif
-                                    {{-- <div class="booking-summary-template d-none">
-                                        <div class="table-light p-3">
-                                            <div class="row align-items-center g-3">
-                                                <div class="col-md-2"><strong>Booking Summary</strong></div>
-                                                <div class="col-md-1">Slot : {{ $slot['main_title'] ?? '-' }}</div>
-                                                <div class="col-md-2">
-                                                        @if ($winningGroups->isNotEmpty())
-                                                            @foreach ($winningGroups as $group)
-                                                                @if (!empty($group['title']))
-                                                                    @php
-                                                                        $titleText = $titleLabels[$group['title']] ?? $group['title'];
-                                                                    @endphp
-                                                                @else
-                                                                    @php
-                                                                        $titleText = '-';
-                                                                    @endphp
-                                                                @endif
-
-                                                                <div>Title: {{ $titleText }}</div>
-                                                            @endforeach
-                                                        @else
-                                                            -
-                                                        @endif
-                                                </div>
-                                                <div class="col-md-1">
-                                                    @if ($winningGroups->isNotEmpty())
-                                                        @foreach ($winningGroups as $group)
-                                                            <div>Qty: {{ $group['booking_qty'] ?? 0 }}</div>
-                                                        @endforeach
-                                                    @else
-                                                        -
-                                                    @endif
-                                                </div>
-                                                <div class="col-md-2">
-                                                    @if ($winningGroups->isNotEmpty())
-                                                        @foreach ($winningGroups as $group)
-                                                            <div>Amount: &#8377;{{ number_format((float) ($group['booking_amount'] ?? 0), 2) }}</div>
-                                                        @endforeach
-                                                    @else
-                                                        -
-                                                    @endif
-                                                </div>
-                                                <div class="col-md-2">
-                                                    @if ($winningGroups->isNotEmpty())
-                                                        @foreach ($winningGroups as $group)
-                                                            <div>{{ $group['group_name'] ?? '-' }} - {{ $group['digit'] ?? '-' }}</div>
-                                                        @endforeach
-                                                    @else
-                                                        -
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div> --}}
                                 </td>
                                 <td>
                                     <div class="d-flex flex-column gap-1">
