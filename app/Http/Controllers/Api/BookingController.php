@@ -455,14 +455,16 @@ class BookingController extends Controller
                 );
 
                 $wallet->increment('balance', $creditAmount);
-                WalletTransactions::create([
-                    'customer_id'     => $customer->customer_id,
-                    'type'            => 'credit',
-                    'amount'          => $creditAmount,
-                    'payment_method'  => 'slot win',
-                    'reference_no'    => 'WIN-' . $booking->booking_id,
-                    'remarks'         => 'Slot winning amount credited',
-                ]);
+                if (!empty($creditAmount) && $creditAmount > 0) {
+                    WalletTransactions::create([
+                        'customer_id'     => $customer->customer_id,
+                        'type'            => 'credit',
+                        'amount'          => $creditAmount,
+                        'payment_method'  => 'slot win',
+                        'reference_no'    => 'WIN-' . $booking->booking_id,
+                        'remarks'         => 'Slot winning amount credited',
+                    ]);
+                }
 
                 $totalWinAmount += $threeDigitResult['win_amount'];
 
