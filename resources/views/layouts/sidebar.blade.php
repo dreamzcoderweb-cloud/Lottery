@@ -2,7 +2,7 @@
     <div class="app-brand demo">
         <a href="{{ route('admin.banners.index') }}" class="app-brand-link">
             <img src="{{ asset('assets/img/logo.png') }}" alt="logo" height="28">
-            <span class="app-brand-text demo menu-text fw-bold ms-2">Super Admin</span>
+            <span class="app-brand-text demo menu-text fw-bold ms-2">Lucky Baby</span>
         </a>
 
         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">

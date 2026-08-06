@@ -66,16 +66,14 @@ class ReportController extends Controller
             })
 
             ->when(!$date, function ($query) use ($tz) {
+                // Default: include slots scheduled for today or earlier.
+                // Previously the logic restricted today's slots by booking_close_time,
+                // causing today's records to be hidden on initial load. We want
+                // today's slots to appear by default (matching the filter behavior
+                // when the user explicitly selects today's date).
                 $today = now($tz)->toDateString();
-                $currentTime = now($tz)->format('H:i:s');
 
-                $query->where(function ($q) use ($today, $currentTime) {
-                    $q->whereDate('draw_date', '<', $today)
-                        ->orWhere(function ($sub) use ($today, $currentTime) {
-                            $sub->whereDate('draw_date', $today)
-                                ->whereTime('booking_close_time', '<=', $currentTime);
-                        });
-                });
+                $query->whereDate('draw_date', '<=', $today);
             })
 
             ->orderByDesc('draw_date')
