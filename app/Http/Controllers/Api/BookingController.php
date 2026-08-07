@@ -102,11 +102,8 @@ class BookingController extends Controller
 
                 $customerId = auth()->id();
 
-                // TOTAL BOOKING AMOUNT
-                $totalAmount = collect($validated['items'])
-                ->sum(function ($item) {
-                    return $item['amount'] * $item['qty'];
-                });
+                // TOTAL BOOKING AMOUNT (server-authoritative aggregate of item amounts)
+                $totalAmount = (float) collect($validated['items'])->sum('amount');
 
                 // CUSTOMER WALLET
                 $wallet = WalletRecharge::where('customer_id', $customerId)
@@ -138,7 +135,7 @@ class BookingController extends Controller
                 // DEDUCT WALLET BALANCE
                 $wallet->decrement('balance', $totalAmount);
 
-                // CREATE WALLET TRANSACTION
+                // CREATE WALLET TRANSACTION (single aggregated debit)
                 WalletTransactions::create([
                     'customer_id'    => $customerId,
                     'type'           => 'debit',
@@ -166,7 +163,7 @@ class BookingController extends Controller
                         'title_id'       => $item['title_id'],
                         'digits'         => $item['digits'],
                         'qty'            => $item['qty'],
-                        'amount'         => $item['amount'],
+                        'amount'         => (float) $item['amount'],
                         'status'         => 'success',
                         // bookings table columns are time-only, so store just the time portion.
                         'booking_time'   => now()->format('H:i:s'),
@@ -625,9 +622,10 @@ class BookingController extends Controller
             return $result;
         }
 
-        if ((int) $booking->slot_items_id !== (int) $slotItem->slot_items_id) {
-            $booking->update(['slot_items_id' => $slotItem->slot_items_id]);
-        }
+        // Do not overwrite the original booking's slot_items_id here.
+        // Overwriting can incorrectly attribute a booking to a different
+        // slot item (for example the admin-declared winning item)
+        // which causes non-winning bookings to become winners.
 
         $bookingDigitStr = str_pad((string)$booking->digits, 3, '0', STR_PAD_LEFT);
         $winningDigitStr = str_pad((string)$slotItem->digit, 3, '0', STR_PAD_LEFT);
@@ -652,25 +650,32 @@ class BookingController extends Controller
         return $result;
     }
 
-    private function getThreeDigitSlotItem(Booking $booking, ?SlotItem $slotItem): ?SlotItem
-    {
-        if (
-            $slotItem &&
-            (int) $slotItem->slot_id === (int) $booking->slot_id &&
-            (int) $slotItem->title === (int) $booking->title_id &&
-            (float) $slotItem->ticket_amt === (float) $booking->amount
-        ) {
-            return $slotItem;
-        }
+   private function getThreeDigitSlotItem(Booking $booking, ?SlotItem $slotItem): ?SlotItem
+{
+    // Calculate per-ticket amount
+    $ticketAmount = $booking->qty > 0
+        ? ($booking->amount / $booking->qty)
+        : $booking->amount;
 
-        $query = SlotItem::where('slot_id', $booking->slot_id)
-            ->where('title', $booking->title_id)
-            ->where('ticket_amt', $booking->amount);
-
-        if ($slotItem && !empty($slotItem->digit)) {
-            $query->where('digit', $slotItem->digit);
-        }
-
-        return $query->first();
+    // Reuse the existing SlotItem if it already matches
+    if (
+        $slotItem &&
+        (int) $slotItem->slot_id === (int) $booking->slot_id &&
+        (int) $slotItem->title === (int) $booking->title_id &&
+        (float) $slotItem->ticket_amt === (float) $ticketAmount
+    ) {
+        return $slotItem;
     }
+
+    // Find the correct SlotItem
+    $query = SlotItem::where('slot_id', $booking->slot_id)
+        ->where('title', $booking->title_id)
+        ->where('ticket_amt', $ticketAmount);
+
+    if (!empty($booking->digits)) {
+        $query->where('digit', $booking->digits);
+    }
+
+    return $query->first();
+}
 }

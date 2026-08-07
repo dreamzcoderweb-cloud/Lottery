@@ -13,11 +13,11 @@
         <div class="card">
             <div class="d-flex justify-content-between align-items-center p-3">
                 <h5 class="card-header mb-0">Customer </h5>
-                <div class="ms-auto">
+                {{-- <div class="ms-auto">
                     <button class="btn btn-primary" >
                         + Add Customer
                     </button>
-                </div>
+                </div> --}}
             </div>
             <div class="table-responsive text-nowrap p-3">
                 <table id="customers-table" class="table">
