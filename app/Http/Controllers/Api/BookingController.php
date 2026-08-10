@@ -340,45 +340,106 @@ class BookingController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        if ((int)$booking->title_id === 3) {
+            $slotItem = $booking->slotItem ?? SlotItem::find($booking->slot_items_id);
+            $threeDigitResult = $this->resolveThreeDigitPrize($booking, $slotItem);
+
+            if ($threeDigitResult['is_winner']) {
+                $expectedWinAmount = $threeDigitResult['win_amount'];
+                $expectedFlags = [
+                    'first_price_flag' => $threeDigitResult['first_price_flag'] ? 'true' : null,
+                    'second_price_flag' => $threeDigitResult['second_price_flag'] ? 'true' : null,
+                    'third_price_flag' => $threeDigitResult['third_price_flag'] ? 'true' : null,
+                ];
+
+                if (
+                    $booking->is_winner !== "true" ||
+                    (float) ($booking->win_amount ?? 0) !== (float) $expectedWinAmount ||
+                    $booking->first_price_flag !== $expectedFlags['first_price_flag'] ||
+                    $booking->second_price_flag !== $expectedFlags['second_price_flag'] ||
+                    $booking->third_price_flag !== $expectedFlags['third_price_flag']
+                ) {
+                    $booking->update(array_merge([
+                        'is_winner' => "true",
+                        'win_amount' => $expectedWinAmount,
+                    ], $expectedFlags));
+                }
+
+                $creditAmount = $expectedWinAmount;
+
+                if (!empty($creditAmount) && $creditAmount > 0) {
+                    $existingTx = WalletTransactions::where('customer_id', $customer->customer_id)
+                        ->where('reference_no', 'WIN-' . $booking->booking_id)
+                        ->first();
+
+                    if (!$existingTx) {
+                        $wallet = WalletRecharge::firstOrCreate(
+                            ['customer_id' => $customer->customer_id],
+                            ['balance' => 0]
+                        );
+                        $wallet->increment('balance', $creditAmount);
+
+                        WalletTransactions::create([
+                            'customer_id'     => $customer->customer_id,
+                            'type'            => 'credit',
+                            'amount'          => $creditAmount,
+                            'payment_method'  => 'slot win',
+                            'reference_no'    => 'WIN-' . $booking->booking_id,
+                            'remarks'         => 'Slot winning amount credited',
+                        ]);
+                    }
+                }
+
+                $totalWinAmount += $expectedWinAmount;
+
+                $winnerData = [
+                    'booking_id'        => $booking->booking_id,
+                    'slot_id'           => $booking->slot_id,
+                    'slot_items_id'     => $booking->slot_items_id,
+                    'title'             => $booking->title_id,
+                    'digits'            => $booking->digits,
+                    'qty'               => $booking->qty,
+                    'single_win_amount' => $threeDigitResult['single_win_amount'],
+                    'win_amount'        => $expectedWinAmount,
+                    'first_price_flag'  => $threeDigitResult['first_price_flag'],
+                    'second_price_flag' => $threeDigitResult['second_price_flag'],
+                    'third_price_flag'  => $threeDigitResult['third_price_flag'],
+                ];
+
+                $winningBookings[] = $winnerData;
+            } else {
+                if ($booking->is_winner !== "false") {
+                    $booking->update([
+                        'is_winner' => "false",
+                        'win_amount' => 0,
+                        'first_price_flag' => null,
+                        'second_price_flag' => null,
+                        'third_price_flag' => null,
+                    ]);
+                }
+            }
+
+            if (
+                $slot->draw_date < $currentDate &&
+                !in_array($slot->slot_id, $expiredSlotIds)
+            ) {
+                $expiredSlots[] = [
+                    'slot_id'   => $slot->slot_id,
+                    'message'   => 'Slot expired',
+                    'draw_date' => $slot->draw_date
+                ];
+                $expiredSlotIds[] = $slot->slot_id;
+            }
+
+            continue;
+        }
+
         if (!is_null($booking->is_winner)) {
 
             $isWinnerVal = $booking->is_winner === true || $booking->is_winner === "true" || $booking->is_winner === 1 || $booking->is_winner === "1";
 
             if ($isWinnerVal) {
                 $singleWinAmount = optional($booking->slotItem)->win_amount;
-                $firstPriceFlag = false;
-                $secondPriceFlag = false;
-                $thirdPriceFlag = false;
-
-                if ((int)$booking->title_id === 3) {
-                    $slotItem = $booking->slotItem ?? SlotItem::find($booking->slot_items_id);
-
-                    if ($slotItem) {
-                        $threeDigitResult = $this->resolveThreeDigitPrize($booking, $slotItem);
-                        $singleWinAmount = $threeDigitResult['single_win_amount'];
-                        $firstPriceFlag = $threeDigitResult['first_price_flag'];
-                        $secondPriceFlag = $threeDigitResult['second_price_flag'];
-                        $thirdPriceFlag = $threeDigitResult['third_price_flag'];
-
-                        $expectedWinAmount = $threeDigitResult['win_amount'];
-                        $expectedFlags = [
-                            'first_price_flag' => $threeDigitResult['first_price_flag'] ? 'true' : null,
-                            'second_price_flag' => $threeDigitResult['second_price_flag'] ? 'true' : null,
-                            'third_price_flag' => $threeDigitResult['third_price_flag'] ? 'true' : null,
-                        ];
-
-                        if (
-                            (float) ($booking->win_amount ?? 0) !== $expectedWinAmount ||
-                            $booking->first_price_flag !== $expectedFlags['first_price_flag'] ||
-                            $booking->second_price_flag !== $expectedFlags['second_price_flag'] ||
-                            $booking->third_price_flag !== $expectedFlags['third_price_flag']
-                        ) {
-                            $booking->update(array_merge([
-                                'win_amount' => $expectedWinAmount,
-                            ], $expectedFlags));
-                        }
-                    }
-                }
 
                 $winnerData = [
                     'booking_id'        => $booking->booking_id,
@@ -390,12 +451,6 @@ class BookingController extends Controller
                     'single_win_amount' => $singleWinAmount,
                     'win_amount'        => $booking->win_amount
                 ];
-
-                if ((int)$booking->title_id === 3) {
-                    $winnerData['first_price_flag'] = $firstPriceFlag;
-                    $winnerData['second_price_flag'] = $secondPriceFlag;
-                    $winnerData['third_price_flag'] = $thirdPriceFlag;
-                }
 
                 $winningBookings[] = $winnerData;
 
@@ -431,151 +486,93 @@ class BookingController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ((int)$booking->title_id === 3) {
-            $slotItem = $booking->slotItem ?? SlotItem::find($booking->slot_items_id);
-            $threeDigitResult = $this->resolveThreeDigitPrize($booking, $slotItem);
+        // Non-3-digit title logic:
+        $winnerSlotItem = SlotItem::find($booking->slot_items_id);
 
-            if ($threeDigitResult['is_winner']) {
-                $booking->update([
-                    'is_winner' => "true",
-                    'win_amount' => $threeDigitResult['win_amount'],
-                    'first_price_flag' => $threeDigitResult['first_price_flag'] ? 'true' : null,
-                    'second_price_flag' => $threeDigitResult['second_price_flag'] ? 'true' : null,
-                    'third_price_flag' => $threeDigitResult['third_price_flag'] ? 'true' : null,
-                ]);
+        if (
+            $winnerSlotItem &&
+            $winnerSlotItem->slot_id == $booking->slot_id &&
+            $winnerSlotItem->title == $booking->title_id &&
+            (string)$winnerSlotItem->digit === (string)$booking->digits
+        ) {
 
-                $creditAmount = $threeDigitResult['win_amount'];
+            /*
+            |--------------------------------------------------------------------------
+            | Win Amount Calculation
+            |--------------------------------------------------------------------------
+            */
 
-                $wallet = WalletRecharge::firstOrCreate(
-                    ['customer_id' => $customer->customer_id],
-                    ['balance' => 0]
-                );
+            $winAmount = $winnerSlotItem->win_amount * $booking->qty;
 
+            /*
+            |--------------------------------------------------------------------------
+            | Booking Update
+            |--------------------------------------------------------------------------
+            */
+
+            $booking->update([
+                'is_winner' => "true",
+                'win_amount' => $winAmount
+            ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Wallet Update
+            |--------------------------------------------------------------------------
+            */
+
+            $creditAmount = $winAmount;
+
+            $wallet = WalletRecharge::firstOrCreate(
+                ['customer_id' => $customer->customer_id],
+                ['balance' => 0]
+            );
+
+            if (!empty($creditAmount) && $creditAmount > 0) {
                 $wallet->increment('balance', $creditAmount);
-                if (!empty($creditAmount) && $creditAmount > 0) {
-                    WalletTransactions::create([
-                        'customer_id'     => $customer->customer_id,
-                        'type'            => 'credit',
-                        'amount'          => $creditAmount,
-                        'payment_method'  => 'slot win',
-                        'reference_no'    => 'WIN-' . $booking->booking_id,
-                        'remarks'         => 'Slot winning amount credited',
-                    ]);
-                }
-
-                $totalWinAmount += $threeDigitResult['win_amount'];
-
-                $winnerData = [
-                    'booking_id'        => $booking->booking_id,
-                    'slot_id'           => $booking->slot_id,
-                    'slot_items_id'     => $booking->slot_items_id,
-                    'title'             => $booking->title_id,
-                    'digits'            => $booking->digits,
-                    'qty'               => $booking->qty,
-                    'single_win_amount' => $threeDigitResult['single_win_amount'],
-                    'win_amount'        => $threeDigitResult['win_amount'],
-                    'first_price_flag'  => $threeDigitResult['first_price_flag'],
-                    'second_price_flag' => $threeDigitResult['second_price_flag'],
-                    'third_price_flag'  => $threeDigitResult['third_price_flag'],
-                ];
-
-                $winningBookings[] = $winnerData;
-            } else {
-                $booking->update([
-                    'is_winner' => "false",
-                    'win_amount' => 0,
+                WalletTransactions::create([
+                    'customer_id'     => $customer->customer_id,
+                    'type'            => 'credit',
+                    'amount'          => $creditAmount,
+                    'payment_method'  => 'slot win',
+                    'reference_no'    => 'WIN-' . $booking->booking_id,
+                    'remarks'         => 'Slot winning amount credited',
                 ]);
-
-                // Do not create a zero-value wallet transaction for non-winning bookings.
             }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Response Data
+            |--------------------------------------------------------------------------
+            */
+
+            $totalWinAmount += $winAmount;
+
+            $winningBookings[] = [
+                'booking_id'        => $booking->booking_id,
+                'slot_id'           => $booking->slot_id,
+                'slot_items_id'     => $booking->slot_items_id,
+                'title'             => $booking->title_id,
+                'digits'            => $booking->digits,
+                'qty'               => $booking->qty,
+                'single_win_amount' => $winnerSlotItem->win_amount,
+                'win_amount'        => $winAmount
+            ];
+
         } else {
-            // Existing logic remains unchanged for all other title_id values
-            $winnerSlotItem = SlotItem::find($booking->slot_items_id);
 
-            if (
-                $winnerSlotItem &&
-                $winnerSlotItem->slot_id == $booking->slot_id &&
-                $winnerSlotItem->title == $booking->title_id &&
-                (string)$winnerSlotItem->digit === (string)$booking->digits
-            ) {
+            /*
+            |--------------------------------------------------------------------------
+            | Non Winner
+            |--------------------------------------------------------------------------
+            */
 
-                /*
-                |--------------------------------------------------------------------------
-                | Win Amount Calculation
-                |--------------------------------------------------------------------------
-                */
+            $booking->update([
+                'is_winner' => "false",
+                'win_amount' => 0
+            ]);
 
-                $winAmount = $winnerSlotItem->win_amount * $booking->qty;
-
-                /*
-                |--------------------------------------------------------------------------
-                | Booking Update
-                |--------------------------------------------------------------------------
-                */
-
-                $booking->update([
-                    'is_winner' => "true",
-                    'win_amount' => $winAmount
-                ]);
-
-                /*
-                |--------------------------------------------------------------------------
-                | Wallet Update
-                |--------------------------------------------------------------------------
-                */
-
-                $creditAmount = $winAmount;
-
-                $wallet = WalletRecharge::firstOrCreate(
-                    ['customer_id' => $customer->customer_id],
-                    ['balance' => 0]
-                );
-
-                $wallet->increment('balance', $creditAmount);
-                if (!empty($creditAmount) && $creditAmount > 0) {
-                    WalletTransactions::create([
-                        'customer_id'     => $customer->customer_id,
-                        'type'            => 'credit',
-                        'amount'          => $creditAmount,
-                        'payment_method'  => 'slot win',
-                        'reference_no'    => 'WIN-' . $booking->booking_id,
-                        'remarks'         => 'Slot winning amount credited',
-                    ]);
-                }
-                /*
-                |--------------------------------------------------------------------------
-                | Response Data
-                |--------------------------------------------------------------------------
-                */
-
-                $totalWinAmount += $winAmount;
-
-                $winningBookings[] = [
-                    'booking_id'        => $booking->booking_id,
-                    'slot_id'           => $booking->slot_id,
-                    'slot_items_id'     => $booking->slot_items_id,
-                    'title'             => $booking->title_id,
-                    'digits'            => $booking->digits,
-                    'qty'               => $booking->qty,
-                    'single_win_amount' => $winnerSlotItem->win_amount,
-                    'win_amount'        => $winAmount
-                ];
-
-            } else {
-
-                /*
-                |--------------------------------------------------------------------------
-                | Non Winner
-                |--------------------------------------------------------------------------
-                */
-
-                $booking->update([
-                    'is_winner' => "false",
-                    'win_amount' => 0
-                ]);
-
-                // Do not create a zero-value wallet transaction for non-winning bookings.
-            }
+            // Do not create a zero-value wallet transaction for non-winning bookings.
         }
 
         /*
@@ -671,10 +668,6 @@ class BookingController extends Controller
     $query = SlotItem::where('slot_id', $booking->slot_id)
         ->where('title', $booking->title_id)
         ->where('ticket_amt', $ticketAmount);
-
-    if (!empty($booking->digits)) {
-        $query->where('digit', $booking->digits);
-    }
 
     return $query->first();
 }
