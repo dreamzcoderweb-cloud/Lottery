@@ -28,6 +28,10 @@ class Booking extends Model
 
     protected $primaryKey = 'booking_id';
 
+    protected $casts = [
+        'winning_approved' => 'integer',
+    ];
+
 
     public function customer()
     {

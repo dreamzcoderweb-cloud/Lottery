@@ -367,11 +367,12 @@ class ReportController extends Controller
         return view('Report.slot-tickets', compact('data'));
     }
 
-    public function approveBookingWinning($booking_id)
+    public function approveBookingWinning(Request $request, $booking_id)
     {
         try {
-            DB::transaction(function () use ($booking_id) {
-                $booking = Booking::lockForUpdate()->findOrFail($booking_id);
+            $approvalDetail = null;
+            DB::transaction(function () use ($booking_id, &$approvalDetail) {
+                $booking = Booking::with('customer')->lockForUpdate()->findOrFail($booking_id);
 
                 $isWinner = $booking->is_winner === true || $booking->is_winner === 'true' || $booking->is_winner === 1 || $booking->is_winner === '1';
 
@@ -400,25 +401,71 @@ class ReportController extends Controller
                         'amount'          => (float)$booking->win_amount,
                         'payment_method'  => 'slot win',
                         'reference_no'    => 'WIN-' . $booking->booking_id,
-                        'remarks'         => 'Slot winning amount credited (Approved by Admin)',
+                        'remarks'         => 'Winning Amount',
                     ]);
                 }
 
                 $booking->winning_approved = true;
                 $booking->save();
+
+                $approvalDetail = [
+                    'slot_id'         => (int) $booking->slot_id,
+                    'title_id'        => (int) $booking->title_id,
+                    'digits'          => (string) ($booking->digits ?? ''),
+                    'winning_amount'  => (float) $booking->win_amount,
+                    'approval_status' => 'approved',
+                    'booking_id'      => (int) $booking->booking_id,
+                    'customer_id'     => (int) $booking->customer_id,
+                    'customer_name'   => $booking->customer ? $booking->customer->name : null,
+                    'customer_mobile' => $booking->customer ? $booking->customer->mobile : null,
+                    'slot_items_id'   => $booking->slot_items_id ? (int) $booking->slot_items_id : null,
+                    'qty'             => (int) $booking->qty,
+                    'amount'          => (float) $booking->amount,
+                    'winning_approved'=> 1,
+                ];
             });
+
+            $isJson = $request->expectsJson()
+                || $request->ajax()
+                || $request->wantsJson()
+                || $request->isJson()
+                || $request->is('api/*')
+                || !$request->accepts('text/html');
+
+            if ($isJson) {
+                return response()->json([
+                    'status'  => true,
+                    'message' => 'Winning amount approved successfully',
+                    'data'    => $approvalDetail,
+                ]);
+            }
 
             return redirect()->back()->with('success', 'Winning amount approved and credited to user wallet successfully.');
         } catch (\Exception $e) {
+            $isJson = $request->expectsJson()
+                || $request->ajax()
+                || $request->wantsJson()
+                || $request->isJson()
+                || $request->is('api/*')
+                || !$request->accepts('text/html');
+
+            if ($isJson) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => $e->getMessage(),
+                ], 400);
+            }
+
             return redirect()->back()->with('danger', 'Error: ' . $e->getMessage());
         }
     }
 
-    public function approveSlotWinnings($slot_id)
+    public function approveSlotWinnings(Request $request, $slot_id)
     {
         try {
             $approvedCount = 0;
-            DB::transaction(function () use ($slot_id, &$approvedCount) {
+            $approvalDetails = [];
+            DB::transaction(function () use ($slot_id, &$approvedCount, &$approvalDetails) {
                 $winningBookings = Booking::where('slot_id', $slot_id)
                     ->where(function ($q) {
                         $q->where('is_winner', 'true')
@@ -427,6 +474,7 @@ class ReportController extends Controller
                           ->orWhere('is_winner', '1');
                     })
                     ->where('win_amount', '>', 0)
+                    ->with('customer')
                     ->lockForUpdate()
                     ->get();
 
@@ -448,7 +496,7 @@ class ReportController extends Controller
                             'amount'          => (float)$booking->win_amount,
                             'payment_method'  => 'slot win',
                             'reference_no'    => 'WIN-' . $booking->booking_id,
-                            'remarks'         => 'Slot winning amount credited (Approved by Admin)',
+                            'remarks'         => 'Winning Amount',
                         ]);
                     }
 
@@ -457,8 +505,43 @@ class ReportController extends Controller
                         $booking->save();
                         $approvedCount++;
                     }
+
+                    $approvalDetails[] = [
+                        'slot_id'         => (int) $booking->slot_id,
+                        'title_id'        => (int) $booking->title_id,
+                        'digits'          => (string) ($booking->digits ?? ''),
+                        'winning_amount'  => (float) $booking->win_amount,
+                        'approval_status' => 'approved',
+                        'booking_id'      => (int) $booking->booking_id,
+                        'customer_id'     => (int) $booking->customer_id,
+                        'customer_name'   => $booking->customer ? $booking->customer->name : null,
+                        'customer_mobile' => $booking->customer ? $booking->customer->mobile : null,
+                        'slot_items_id'   => $booking->slot_items_id ? (int) $booking->slot_items_id : null,
+                        'qty'             => (int) $booking->qty,
+                        'amount'          => (float) $booking->amount,
+                        'winning_approved'=> 1,
+                    ];
                 }
             });
+
+            $isJson = $request->expectsJson()
+                || $request->ajax()
+                || $request->wantsJson()
+                || $request->isJson()
+                || $request->is('api/*')
+                || !$request->accepts('text/html');
+
+            if ($isJson) {
+                $message = $approvedCount > 0
+                    ? "{$approvedCount} winning amount(s) approved successfully"
+                    : "All winning amounts for this slot were already approved";
+
+                return response()->json([
+                    'status'  => true,
+                    'message' => $message,
+                    'data'    => $approvalDetails,
+                ]);
+            }
 
             if ($approvedCount > 0) {
                 return redirect()->back()->with('success', "{$approvedCount} winning amount(s) approved and credited successfully.");
@@ -466,6 +549,20 @@ class ReportController extends Controller
 
             return redirect()->back()->with('success', 'All winning amounts for this slot were already approved.');
         } catch (\Exception $e) {
+            $isJson = $request->expectsJson()
+                || $request->ajax()
+                || $request->wantsJson()
+                || $request->isJson()
+                || $request->is('api/*')
+                || !$request->accepts('text/html');
+
+            if ($isJson) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => $e->getMessage(),
+                ], 400);
+            }
+
             return redirect()->back()->with('danger', 'Error: ' . $e->getMessage());
         }
     }

@@ -170,7 +170,6 @@ class BookingController extends Controller
                         // Use slot close time so morning/evening bookings are distinguished correctly.
                         'close_time'     => $slot->booking_close_time,
                         'payment_status' => 'paid',
-                        'winning_approved' => 0
                     ]);
 
                     $bookings[] = $booking;
@@ -397,6 +396,7 @@ class BookingController extends Controller
                     'first_price_flag'  => $threeDigitResult['first_price_flag'],
                     'second_price_flag' => $threeDigitResult['second_price_flag'],
                     'third_price_flag'  => $threeDigitResult['third_price_flag'],
+                    'winning_approved'  => (int) ($booking->winning_approved ?? 0),
                 ];
 
                 $winningBookings[] = $winnerData;
@@ -442,7 +442,8 @@ class BookingController extends Controller
                     'digits'            => $booking->digits,
                     'qty'               => $booking->qty,
                     'single_win_amount' => $singleWinAmount,
-                    'win_amount'        => $booking->win_amount
+                    'win_amount'        => $booking->win_amount,
+                    'winning_approved'  => (int) ($booking->winning_approved ?? 0),
                 ];
 
                 $winningBookings[] = $winnerData;
@@ -526,7 +527,8 @@ class BookingController extends Controller
                 'digits'            => $booking->digits,
                 'qty'               => $booking->qty,
                 'single_win_amount' => $winnerSlotItem->win_amount,
-                'win_amount'        => $winAmount
+                'win_amount'        => $winAmount,
+                'winning_approved'  => (int) ($booking->winning_approved ?? 0),
             ];
 
         } else {
