@@ -131,5 +131,15 @@
                 </ul>
             </li>
         @endcanany
+
+        <!-- Settings -->
+        @canany(['settings.view', 'settings.manage'])
+            <li class="menu-item {{ request()->is('admin/settings') ? 'active' : '' }}">
+                <a href="{{ route('admin.settings.index') }}" class="menu-link">
+                    <i class="menu-icon tf-icons bx bx-cog"></i>
+                    <div class="text-truncate">Settings</div>
+                </a>
+            </li>
+        @endcanany
     </ul>
 </aside>

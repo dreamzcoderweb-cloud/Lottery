@@ -33,6 +33,27 @@ class WalletRechargeAdminController extends Controller
         return view('recharges.show', compact('recharge'));
     }
 
+    public function updateAmount(Request $request, int $id)
+    {
+        $validated = $request->validate([
+            'amount' => ['required', 'numeric', 'gt:0'],
+        ]);
+
+        try {
+            $recharge = WalletRechargeRequest::where('wallet_recharge_request_id', $id)->firstOrFail();
+            $recharge->amount = (float) $validated['amount'];
+            $recharge->save();
+
+            return redirect()
+                ->route('admin.recharges.show', $id)
+                ->with('success', 'Recharge amount updated successfully.');
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('admin.recharges.show', $id)
+                ->with('danger', 'Error updating amount: ' . $e->getMessage());
+        }
+    }
+
     public function approve(Request $request, int $id)
     {
         $validated = $request->validate([

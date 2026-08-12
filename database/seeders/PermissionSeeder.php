@@ -45,6 +45,8 @@ class PermissionSeeder extends Seeder
             'recharges.approve',
             'recharges.reject',
             'reports.winningsslots',
+            'settings.view',
+            'settings.manage',
         ];
 
         foreach ($permissions as $name) {

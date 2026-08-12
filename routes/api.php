@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\WalletWithdrawalController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\BannerController;
+use App\Http\Controllers\Api\SettingController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -15,7 +16,9 @@ Route::prefix('v1')->group(function () {
     Route::post('customer/login', [CustomerAuthController::class, 'login']);
     Route::post('check-mobile', [CustomerAuthController::class, 'checkMobile']);
     Route::post('check-details', [CustomerAuthController::class, 'checkDetails']);
+    Route::get('settings', [SettingController::class, 'index']);
     Route::middleware('auth:sanctum')->group(function () {
+        Route::get('settings', [SettingController::class, 'index']);
         Route::get('customer/me', [CustomerAuthController::class, 'me']);
         Route::post('customer/logout', [CustomerAuthController::class, 'logout']);
         Route::get('banner', [BannerController::class, 'index']);

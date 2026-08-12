@@ -26,7 +26,18 @@
                         <div class="mb-2"><strong>Customer ID:</strong> {{ $recharge->customer_id }}</div>
                         <div class="mb-2"><strong>Customer Name:</strong> {{ $recharge->customer->name ?? 'N/A' }}</div>
                         <div class="mb-2"><strong>Customer Mobile:</strong> {{ $recharge->customer->mobile ?? 'N/A' }}</div>
-                        <div class="mb-2"><strong>Amount:</strong> {{ number_format((float) $recharge->amount, 2) }}</div>
+                        <form method="post" action="{{ route('admin.recharges.update-amount', $recharge->wallet_recharge_request_id) }}" class="my-3 p-2 border rounded bg-light">
+                            @csrf
+                            <label class="form-label fw-bold mb-1">Amount (₹):</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="0.01" min="0.01" name="amount" class="form-control" value="{{ old('amount', $recharge->amount) }}" required>
+                                <button type="submit" class="btn btn-primary">Update Amount</button>
+                            </div>
+                            @error('amount')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </form>
                         <div class="mb-2"><strong>Payment Method:</strong> {{ strtoupper($recharge->payment_method) }}</div>
                         <div class="mb-2">
                             <strong>Status:</strong>

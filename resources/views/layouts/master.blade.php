@@ -71,6 +71,153 @@
     <script>
         var APP_URL = {!! json_encode(url('/')) !!}
     </script>
+
+    @php
+        $adminThemeColor = \App\Models\Setting::get('theme_color', '#696cff');
+        $hex = ltrim($adminThemeColor, '#');
+        if (strlen($hex) == 3) {
+            $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+        }
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+        $adminThemeRgb = "$r, $g, $b";
+
+        $rDark = max(0, (int)($r * 0.85));
+        $gDark = max(0, (int)($g * 0.85));
+        $bDark = max(0, (int)($b * 0.85));
+        $adminThemeDarker = sprintf("#%02x%02x%02x", $rDark, $gDark, $bDark);
+    @endphp
+
+    <style>
+        :root {
+            --bs-primary: {{ $adminThemeColor }};
+            --bs-primary-rgb: {{ $adminThemeRgb }};
+        }
+
+        /* Full Sidebar Theme Background */
+        #layout-menu,
+        #layout-menu.bg-menu-theme,
+        aside#layout-menu {
+            background-color: {{ $adminThemeColor }} !important;
+            color: #ffffff !important;
+        }
+
+        /* App Brand & Logo in Sidebar */
+        #layout-menu .app-brand {
+            background-color: transparent !important;
+        }
+        #layout-menu .app-brand-text,
+        #layout-menu .app-brand a {
+            color: #ffffff !important;
+        }
+
+        /* Sidebar Menu Items, Icons & Links */
+        #layout-menu .menu-link,
+        #layout-menu .menu-icon,
+        #layout-menu .menu-header-text,
+        #layout-menu .menu-item a,
+        #layout-menu .menu-item div,
+        #layout-menu .layout-menu-toggle i {
+            color: rgba(255, 255, 255, 0.88) !important;
+        }
+
+        /* Hover states */
+        #layout-menu .menu-inner > .menu-item > .menu-link:hover,
+        #layout-menu .menu-inner > .menu-item > .menu-link:focus {
+            background-color: rgba(255, 255, 255, 0.15) !important;
+            color: #ffffff !important;
+        }
+
+        /* Sub-menu items & hover */
+        #layout-menu .menu-sub > .menu-item > .menu-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+        #layout-menu .menu-sub > .menu-item > .menu-link:hover {
+            color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.12) !important;
+        }
+        #layout-menu .menu-sub > .menu-item > .menu-link:before {
+            background-color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        /* Active Menu Item (white pill with theme color text for crisp contrast) */
+        #layout-menu .menu-inner > .menu-item.active > .menu-link {
+            background-color: #ffffff !important;
+            color: {{ $adminThemeColor }} !important;
+            box-shadow: 0 0.125rem 0.375rem 0 rgba(0, 0, 0, 0.2) !important;
+            font-weight: 700 !important;
+        }
+        #layout-menu .menu-inner > .menu-item.active > .menu-link .menu-icon,
+        #layout-menu .menu-inner > .menu-item.active > .menu-link div {
+            color: {{ $adminThemeColor }} !important;
+        }
+
+        /* Active Sub-menu Item */
+        #layout-menu .menu-sub > .menu-item.active > .menu-link {
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            background-color: rgba(255, 255, 255, 0.2) !important;
+        }
+        #layout-menu .menu-sub > .menu-item.active > .menu-link:before {
+            background-color: #ffffff !important;
+        }
+
+        /* Open Dropdown Parent */
+        #layout-menu .menu-item.open > .menu-link {
+            background-color: rgba(255, 255, 255, 0.12) !important;
+            color: #ffffff !important;
+        }
+
+        /* Hide menu inner shadow overlay on dark background */
+        #layout-menu .menu-inner-shadow {
+            display: none !important;
+        }
+
+        /* Primary & Success Action Buttons */
+        .btn-primary,
+        .btn-success {
+            background-color: {{ $adminThemeColor }} !important;
+            border-color: {{ $adminThemeColor }} !important;
+            color: #ffffff !important;
+            box-shadow: 0 0.125rem 0.25rem 0 rgba({{ $adminThemeRgb }}, 0.4) !important;
+        }
+        .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active,
+        .btn-success:hover, .btn-success:focus, .btn-success:active, .btn-success.active {
+            background-color: {{ $adminThemeDarker }} !important;
+            border-color: {{ $adminThemeDarker }} !important;
+        }
+
+        /* Outline Buttons */
+        .btn-outline-primary {
+            color: {{ $adminThemeColor }} !important;
+            border-color: {{ $adminThemeColor }} !important;
+        }
+        .btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
+            background-color: {{ $adminThemeColor }} !important;
+            border-color: {{ $adminThemeColor }} !important;
+            color: #ffffff !important;
+        }
+
+        /* Badges, text & UI elements */
+        .bg-primary {
+            background-color: {{ $adminThemeColor }} !important;
+        }
+        .text-primary {
+            color: {{ $adminThemeColor }} !important;
+        }
+        .page-item.active .page-link, .page-item.active .page-link:hover, .page-item.active .page-link:focus {
+            background-color: {{ $adminThemeColor }} !important;
+            border-color: {{ $adminThemeColor }} !important;
+        }
+        .form-check-input:checked {
+            background-color: {{ $adminThemeColor }} !important;
+            border-color: {{ $adminThemeColor }} !important;
+        }
+        .nav-pills .nav-link.active, .nav-pills .nav-link.active:hover, .nav-pills .nav-link.active:focus {
+            background-color: {{ $adminThemeColor }} !important;
+        }
+    </style>
 </head>
 
 <body>

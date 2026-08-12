@@ -11,6 +11,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SlotController;
 use App\Http\Controllers\WalletWithdrawalAdminController;
 use App\Http\Controllers\WalletRechargeAdminController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
 // login route
@@ -106,6 +107,8 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
     Route::get('wallet-recharges/{id}', [WalletRechargeAdminController::class, 'show'])
         ->middleware('permission:recharges.view')
         ->name('recharges.show');
+    Route::post('wallet-recharges/{id}/update-amount', [WalletRechargeAdminController::class, 'updateAmount'])
+        ->name('recharges.update-amount');
     Route::post('wallet-recharges/{id}/approve', [WalletRechargeAdminController::class, 'approve'])
         ->middleware('permission:recharges.approve')
         ->name('recharges.approve');
@@ -132,4 +135,12 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
     Route::post('reports/winnings-slots/booking/{booking_id}/approve', [ReportController::class, 'approveBookingWinning'])
         ->middleware('permission:reports.winningsslots')
         ->name('reports.winningsslots.approve-booking');
+
+    // Settings
+    Route::get('settings', [SettingController::class, 'index'])
+        ->middleware('permission:settings.view')
+        ->name('settings.index');
+    Route::post('settings', [SettingController::class, 'update'])
+        ->middleware('permission:settings.manage')
+        ->name('settings.update');
 });
