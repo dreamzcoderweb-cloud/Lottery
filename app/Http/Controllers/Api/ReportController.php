@@ -10,207 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 class ReportController extends Controller
 {
-    // public function slotWinningReport(): \Illuminate\Http\JsonResponse
-    // {
-    //     $tz = 'Asia/Kolkata';
-
-    //     $limit = (int) request()->query('limit', 30);
-    //     $limit = max(1, min(100, $limit));
-
-    //     $title = request()->query('title');
-
-    //    $slots = Slot::query()->select(['slot_id','main_title','draw_date','booking_close_time','draw_time','short_title','title', 'slug', 'status',])
-    //     ->with(['items' => function ($q) use ($title) {$q->select(['slot_items_id','slot_id','title','group_name','digit','color','win_amount','ticket_amt',]);
-
-    //         if (!empty($title)) {
-    //             $q->where('title', $title);
-    //         }
-    //     }
-    //     ])->where('status', 'Active')->where(function ($q) use ($tz) {
-
-    //         $today = now($tz)->toDateString();
-    //         $currentTime = now($tz)->format('H:i:s');
-
-    //         // previous dates
-    //         $q->whereDate('draw_date', '<', $today)
-
-    //         // today -> only completed booking close time
-    //         ->orWhere(function ($sub) use ($today, $currentTime) {
-
-    //             $sub->whereDate('draw_date', $today)
-    //                 ->whereTime('booking_close_time', '<=', $currentTime);
-    //         });
-    //     })
-    //     ->orderByDesc('draw_date')
-    //     ->orderByDesc('draw_time')
-    //     ->limit($limit)
-    //     ->get();
-
-    //     $data = [];
-
-    //     foreach ($slots as $slot) {
-
-    //         // skip empty result slots
-    //         if ($slot->items->isEmpty()) {
-    //             continue;
-    //         }
-
-    //         $resultTime = null;
-
-    //         if (!empty($slot->draw_time)) {
-
-    //             $resultTime = Carbon::parse(
-    //                 $slot->draw_time,
-    //                 $tz
-    //             )->format('h:i A');
-    //         }
-
-    //         $groups = $slot->items->map(function ($item) {
-
-    //             return [
-    //                 'group_name' => strtoupper($item->group_name),
-    //                 'digit' => (int) $item->digit,
-    //                 'color' => $item->color,
-    //                 'win_amount' => $item->win_amount,
-    //                 'ticket_amt' => $item->ticket_amt,
-    //             ];
-    //         })->values();
-
-    //         $data[] = [
-    //             'slot_id' => $slot->slot_id,
-    //             'main_title' => $slot->main_title,
-    //             'short_title' => $slot->short_title,
-    //             'title' => $slot->title,
-    //             'slug' => $slot->slug,
-    //             'draw_date' => $slot->draw_date,
-    //             'draw_time' => $resultTime,
-    //             'booking_close_time' => $slot->booking_close_time,
-    //             'status' => $slot->status,
-    //             'winning_groups' => $groups,
-    //         ];
-    //     }
-
-    //     return response()->json([
-    //         'status' => true,
-    //         'message' => 'Last winning slot records',
-    //         'data' => $data,
-    //     ]);
-    // }
-    //   public function slotWinningReport(): \Illuminate\Http\JsonResponse
-    // {
-    //     $tz = 'Asia/Kolkata';
-
-    //     $limit = (int) request()->query('limit', 30);
-    //     $limit = max(1, min(100, $limit));
-
-    //     $title = request()->query('title');
-
-    //     $slots = Slot::query()
-    //         ->select([
-    //             'slot_id',
-    //             'main_title',
-    //             'draw_date',
-    //             'booking_close_time',
-    //             'draw_time',
-    //             'short_title',
-    //             'title',
-    //             'slug',
-    //             'status',
-    //         ])
-
-    //         // Only slots whose result process completed
-    //         ->whereHas('bookings', function ($q) {
-    //             $q->whereNotNull('is_winner');
-    //         })
-
-    //         ->with([
-    //             'items' => function ($q) use ($title) {
-    //                 $q->select([
-    //                     'slot_items_id',
-    //                     'slot_id',
-    //                     'title',
-    //                     'group_name',
-    //                     'digit',
-    //                     'color',
-    //                     'win_amount',
-    //                     'ticket_amt',
-    //                 ]);
-
-    //                 if (!empty($title)) {
-    //                     $q->where('title', $title);
-    //                 }
-    //             }
-    //         ])
-
-    //         ->where('status', 'Active')
-
-    //         ->where(function ($q) use ($tz) {
-
-    //             $today = now($tz)->toDateString();
-    //             $currentTime = now($tz)->format('H:i:s');
-
-    //             $q->whereDate('draw_date', '<', $today)
-
-    //                 ->orWhere(function ($sub) use ($today, $currentTime) {
-
-    //                     $sub->whereDate('draw_date', $today)
-    //                         ->whereTime('booking_close_time', '<=', $currentTime);
-    //                 });
-    //         })
-
-    //         ->orderByDesc('draw_date')
-    //         ->orderByDesc('draw_time')
-    //         ->limit($limit)
-    //         ->get();
-
-    //     $data = [];
-
-    //     foreach ($slots as $slot) {
-
-    //         if ($slot->items->isEmpty()) {
-    //             continue;
-    //         }
-
-    //         $resultTime = null;
-
-    //         if (!empty($slot->draw_time)) {
-    //             $resultTime = Carbon::parse(
-    //                 $slot->draw_time,
-    //                 $tz
-    //             )->format('h:i A');
-    //         }
-
-    //         $groups = $slot->items->map(function ($item) {
-
-    //             return [
-    //                 'group_name' => strtoupper($item->group_name),
-    //                 'digit'      => (int) $item->digit,
-    //                 'color'      => $item->color,
-    //                 'win_amount' => $item->win_amount,
-    //                 'ticket_amt' => $item->ticket_amt,
-    //             ];
-    //         })->values();
-
-    //         $data[] = [
-    //             'slot_id'            => $slot->slot_id,
-    //             'main_title'         => $slot->main_title,
-    //             'short_title'        => $slot->short_title,
-    //             'title'              => $slot->title,
-    //             'slug'               => $slot->slug,
-    //             'draw_date'          => $slot->draw_date,
-    //             'draw_time'          => $resultTime,
-    //             'booking_close_time' => $slot->booking_close_time,
-    //             'status'             => $slot->status,
-    //             'winning_groups'     => $groups,
-    //         ];
-    //     }
-
-    //     return response()->json([
-    //         'status' => true,
-    //         'message' => 'Last winning slot records',
-    //         'data' => $data,
-    //     ]);
-    // }
+   
     public function slotWinningReport(): \Illuminate\Http\JsonResponse
     {
         $tz = 'Asia/Kolkata';
@@ -219,6 +19,7 @@ class ReportController extends Controller
         $limit = max(1, min(100, $limit));
 
         $title = request()->query('title');
+        $date = request()->query('date');
 
         $slots = Slot::query()
             ->select([
@@ -232,6 +33,8 @@ class ReportController extends Controller
                 'slug',
                 'status',
             ])
+
+            ->whereHas('bookings')
 
             ->with([
                 'items' => function ($q) use ($title) {
@@ -254,35 +57,13 @@ class ReportController extends Controller
 
             ->where('status', 'Active')
 
-            ->where(function ($q) use ($tz) {
-                $today = now($tz)->toDateString();
-                $currentTime = now($tz)->format('H:i:s');
-
-                $q->whereDate('draw_date', '<', $today)
-                    ->orWhere(function ($sub) use ($today, $currentTime) {
-                        $sub->whereDate('draw_date', $today)
-                            ->whereTime('booking_close_time', '<=', $currentTime);
-                    });
+            ->when($date, function ($query, $date) {
+                $query->whereDate('draw_date', $date);
             })
 
-            ->where(function ($q) use ($tz) {
+            ->when(!$date, function ($query) use ($tz) {
                 $today = now($tz)->toDateString();
-                $yesterday = now($tz)->subDay()->toDateString();
-
-                $q->where(function ($sub) use ($today, $yesterday) {
-                    $sub->whereIn('draw_date', [$today, $yesterday])
-                        ->where(function ($sub2) {
-                            $sub2->whereDoesntHave('bookings')
-                                 ->orWhereHas('bookings', function ($b) {
-                                     $b->whereNotNull('is_winner');
-                                 });
-                        });
-                })
-                ->orWhere(function ($sub) {
-                    $sub->whereHas('bookings', function ($b) {
-                        $b->whereNotNull('is_winner');
-                    });
-                });
+                $query->whereDate('draw_date', '<=', $today);
             })
 
             ->orderByDesc('draw_date')
@@ -294,7 +75,22 @@ class ReportController extends Controller
 
         foreach ($slots as $slot) {
 
+            // Exclude slot if main_title is NULL or empty
+            if (is_null($slot->main_title) || trim((string)$slot->main_title) === '') {
+                continue;
+            }
+
             if ($slot->items->isEmpty()) {
+                continue;
+            }
+
+            // Filter items to keep only those with non-NULL, non-empty winning digits
+            $validItems = $slot->items->filter(function ($item) {
+                return !is_null($item->digit) && trim((string)$item->digit) !== '';
+            });
+
+            // Exclude slot if no valid winning digits/details exist
+            if ($validItems->isEmpty()) {
                 continue;
             }
 
@@ -307,7 +103,7 @@ class ReportController extends Controller
                 )->format('h:i A');
             }
 
-            $groups = $slot->items->map(function ($item) {
+            $groups = $validItems->map(function ($item) {
 
                 return [
                     'group_name' => strtoupper($item->group_name),
