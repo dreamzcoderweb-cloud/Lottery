@@ -24,7 +24,7 @@
             </div>
 
             <div class="table-responsive text-nowrap p-3">
-                <table class="table">
+                <table class="table" id="rechargesTable">
                     <thead class="table-light">
                         <tr>
                             <th>#</th>
@@ -40,7 +40,7 @@
                     <tbody class="table-border-bottom-0">
                         @forelse ($recharges as $r)
                             <tr>
-                                <td>{{ ($recharges->currentPage() - 1) * $recharges->perPage() + $loop->iteration }}</td>
+                                <td>{{ $loop->iteration }}</td>
                                 <td>{{ $r->customer->name ?? 'N/A' }}</td>
                                 <td>{{ $r->customer->reference_code ?? '---' }}</td>
                                 <td>{{ number_format((float) $r->amount, 2) }}</td>
@@ -69,10 +69,6 @@
                         @endforelse
                     </tbody>
                 </table>
-            </div>
-
-            <div class="p-3">
-                {{ $recharges->links() }}
             </div>
         </div>
     </div>

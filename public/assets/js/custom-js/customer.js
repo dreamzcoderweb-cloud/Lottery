@@ -52,6 +52,25 @@ $(document).ready(function () {
     // datatable js end
 
     // datatable js start
+    new DataTable('#rechargesTable', {
+        layout: {},
+        "ordering": false,
+        oLanguage: {
+            sLengthMenu: "_MENU_",
+        }
+    });
+    // datatable js end
+    // datatable js start
+        new DataTable('#withdrawalsTable', {
+        ordering: false,
+        pageLength: 10,
+        language: {
+            lengthMenu: "_MENU_",
+            search: "Search:"
+        }
+    });
+// datatable js end
+    // datatable js start
     new DataTable('#walletTransactionsTable', {
         layout: {},
         "ordering": false,

@@ -24,7 +24,7 @@
             </div>
 
             <div class="table-responsive text-nowrap p-3">
-                <table class="table">
+                <table class="table" id="withdrawalsTable">
                     <thead class="table-light">
                         <tr>
                             <th>#</th>
@@ -38,13 +38,18 @@
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
-                        @forelse ($withdrawals as $w)
+                        @foreach ($withdrawals as $w)
                             <tr>
-                                <td>{{ ($withdrawals->currentPage() - 1) * $withdrawals->perPage() + $loop->iteration }}</td>
+                                <td>{{ $loop->iteration }}</td>
+
                                 <td>{{ $w->customer->name ?? 'N/A' }}</td>
+
                                 <td>{{ $w->customer->reference_code ?? '---' }}</td>
+
                                 <td>{{ $w->customer->referredBy->name ?? '---' }}</td>
+
                                 <td>{{ number_format((float) $w->amount, 2) }}</td>
+
                                 <td>
                                     @php
                                         $badge = match((string) $w->status) {
@@ -53,27 +58,31 @@
                                             default => 'bg-warning',
                                         };
                                     @endphp
-                                    <span class="badge {{ $badge }}">{{ strtoupper($w->status) }}</span>
+
+                                    <span class="badge {{ $badge }}">
+                                        {{ strtoupper($w->status) }}
+                                    </span>
                                 </td>
-                                <td>{{ $w->created_at ? \Carbon\Carbon::parse($w->created_at)->format('d-m-Y') : '' }}</td>
+
                                 <td>
-                                    <a class="btn btn-outline-primary btn-sm" href="{{ route('admin.withdrawals.show', $w->wallet_withdrawal_id) }}">
+                                    {{ $w->created_at
+                                        ? \Carbon\Carbon::parse($w->created_at)->format('d-m-Y')
+                                        : '' }}
+                                </td>
+
+                                <td>
+                                    <a
+                                        class="btn btn-outline-primary btn-sm"
+                                        href="{{ route('admin.withdrawals.show', $w->wallet_withdrawal_id) }}">
                                         View
                                     </a>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center text-muted py-3">No withdrawal requests found.</td>
-                            </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>
 
-            <div class="p-3">
-                {{ $withdrawals->links() }}
-            </div>
         </div>
     </div>
 @endsection

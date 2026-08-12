@@ -13,20 +13,21 @@ class WalletWithdrawalAdminController extends Controller
     }
 
     public function index(Request $request)
-    {
-        $status = $request->query('status');
+{
+    $status = $request->query('status');
 
-        $query = WalletWithdrawal::with('customer') // 🔥 important
-        ->latest('wallet_withdrawal_id');
+    $query = WalletWithdrawal::with([
+        'customer.referredBy'
+    ])->latest('wallet_withdrawal_id');
 
-        if ($status) {
-            $query->where('status', $status);
-        }
-        //dd($query->toSql(), $query->getBindings());
-        $withdrawals = $query->paginate(20)->withQueryString();
-        // dd($withdrawals);
-        return view('withdrawals.view', compact('withdrawals', 'status'));
+    if ($status) {
+        $query->where('status', $status);
     }
+
+    $withdrawals = $query->get();
+
+    return view('withdrawals.view', compact('withdrawals', 'status'));
+}
 
     public function show(int $id)
     {
