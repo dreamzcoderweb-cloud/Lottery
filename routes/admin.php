@@ -124,4 +124,12 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
     Route::get('reports/winnings-slots/{slot_id}/tickets', [ReportController::class, 'slotTickets'])
         ->middleware('permission:reports.winningsslots')
         ->name('reports.slot-tickets');
+
+    Route::post('reports/winnings-slots/{slot_id}/approve', [ReportController::class, 'approveSlotWinnings'])
+        ->middleware('permission:reports.winningsslots')
+        ->name('reports.winningsslots.approve-slot');
+
+    Route::post('reports/winnings-slots/booking/{booking_id}/approve', [ReportController::class, 'approveBookingWinning'])
+        ->middleware('permission:reports.winningsslots')
+        ->name('reports.winningsslots.approve-booking');
 });

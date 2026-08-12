@@ -170,6 +170,7 @@ class BookingController extends Controller
                         // Use slot close time so morning/evening bookings are distinguished correctly.
                         'close_time'     => $slot->booking_close_time,
                         'payment_status' => 'paid',
+                        'winning_approved' => 0
                     ]);
 
                     $bookings[] = $booking;
@@ -244,7 +245,7 @@ class BookingController extends Controller
     private function processResults($customer, $slotId = null)
 {
     $bookingsQuery = Booking::with([
-            'slot',
+            'slot.items',
             'slotItem'
         ])
         ->where('customer_id', $customer->customer_id)
@@ -289,48 +290,63 @@ class BookingController extends Controller
             continue;
         }
 
+
+
         /*
         |--------------------------------------------------------------------------
-        | Close Time Check
+        | Close Time Check (Commented Out)
         |--------------------------------------------------------------------------
         */
 
+        /*
         $closeTime = $slot->booking_close_time ?? ($slot->close_time ?? null);
 
-        if (empty($slot->draw_date) || empty($closeTime)) {
+        if (!empty($slot->draw_date) && !empty($closeTime)) {
+            $closeTimeString = (string) $closeTime;
+            if (preg_match('/^\d{2}:\d{2}$/', $closeTimeString)) {
+                $closeTimeString .= ':00';
+            }
+
+            try {
+                $closeDateTime = Carbon::createFromFormat(
+                    'Y-m-d H:i:s',
+                    $slot->draw_date . ' ' . $closeTimeString,
+                    'Asia/Kolkata'
+                );
+            } catch (\Throwable $e) {
+                $closeDateTime = Carbon::parse(
+                    $slot->draw_date . ' ' . $closeTimeString,
+                    'Asia/Kolkata'
+                );
+            }
+
+            // If current time is before closing time, slot is still open for booking
+            if ($currentDateTime->timestamp < $closeDateTime->timestamp) {
+                continue;
+            }
+        }
+        */
+
+        /*
+        |--------------------------------------------------------------------------
+        | Digits Null Check (All digits must be non-null)
+        |--------------------------------------------------------------------------
+        */
+
+        if (is_null($booking->digits) || trim((string) $booking->digits) === '') {
             continue;
         }
 
-        $closeTimeString = (string) $closeTime;
-
-        // HH:MM → HH:MM:SS
-        if (preg_match('/^\d{2}:\d{2}$/', $closeTimeString)) {
-            $closeTimeString .= ':00';
+        $slotItems = $slot->items;
+        if ($slotItems->isEmpty()) {
+            continue;
         }
 
-        try {
+        $hasNullDigits = $slotItems->contains(function ($item) {
+            return is_null($item->digit) || trim((string) $item->digit) === '';
+        });
 
-            $closeDateTime = Carbon::createFromFormat(
-                'Y-m-d H:i:s',
-                $slot->draw_date . ' ' . $closeTimeString,
-                'Asia/Kolkata'
-            );
-
-        } catch (\Throwable $e) {
-
-            $closeDateTime = Carbon::parse(
-                $slot->draw_date . ' ' . $closeTimeString,
-                'Asia/Kolkata'
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Result Not Ready Yet
-        |--------------------------------------------------------------------------
-        */
-
-        if ($currentDateTime->timestamp < $closeDateTime->timestamp) {
+        if ($hasNullDigits) {
             continue;
         }
 
@@ -365,30 +381,7 @@ class BookingController extends Controller
                     ], $expectedFlags));
                 }
 
-                $creditAmount = $expectedWinAmount;
 
-                if (!empty($creditAmount) && $creditAmount > 0) {
-                    $existingTx = WalletTransactions::where('customer_id', $customer->customer_id)
-                        ->where('reference_no', 'WIN-' . $booking->booking_id)
-                        ->first();
-
-                    if (!$existingTx) {
-                        $wallet = WalletRecharge::firstOrCreate(
-                            ['customer_id' => $customer->customer_id],
-                            ['balance' => 0]
-                        );
-                        $wallet->increment('balance', $creditAmount);
-
-                        WalletTransactions::create([
-                            'customer_id'     => $customer->customer_id,
-                            'type'            => 'credit',
-                            'amount'          => $creditAmount,
-                            'payment_method'  => 'slot win',
-                            'reference_no'    => 'WIN-' . $booking->booking_id,
-                            'remarks'         => 'Slot winning amount credited',
-                        ]);
-                    }
-                }
 
                 $totalWinAmount += $expectedWinAmount;
 
@@ -515,30 +508,7 @@ class BookingController extends Controller
                 'win_amount' => $winAmount
             ]);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Wallet Update
-            |--------------------------------------------------------------------------
-            */
 
-            $creditAmount = $winAmount;
-
-            $wallet = WalletRecharge::firstOrCreate(
-                ['customer_id' => $customer->customer_id],
-                ['balance' => 0]
-            );
-
-            if (!empty($creditAmount) && $creditAmount > 0) {
-                $wallet->increment('balance', $creditAmount);
-                WalletTransactions::create([
-                    'customer_id'     => $customer->customer_id,
-                    'type'            => 'credit',
-                    'amount'          => $creditAmount,
-                    'payment_method'  => 'slot win',
-                    'reference_no'    => 'WIN-' . $booking->booking_id,
-                    'remarks'         => 'Slot winning amount credited',
-                ]);
-            }
 
             /*
             |--------------------------------------------------------------------------

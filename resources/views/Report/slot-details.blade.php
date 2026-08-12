@@ -176,6 +176,105 @@
         @endif
 
 
+        <!-- Winners & Winning Approvals Section -->
+        @php
+            $winnersByBooking = collect($data['customer_details']['winners'] ?? [])->groupBy('booking_id');
+            $hasPendingWinnings = false;
+            foreach ($winnersByBooking as $bId => $items) {
+                if (empty($items->first()['winning_approved'])) {
+                    $hasPendingWinnings = true;
+                    break;
+                }
+            }
+        @endphp
+
+        @if ($winnersByBooking->isNotEmpty())
+            <div class="card mb-4">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0">Winners & Winning Approvals</h5>
+                    @if ($hasPendingWinnings)
+                        <form action="{{ route('admin.reports.winningsslots.approve-slot', $data['slot_id']) }}"
+                              method="POST"
+                              onsubmit="return confirm('Are you sure you want to approve and credit all winning amounts for this slot?');">
+                            @csrf
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="bx bx-check-double me-1"></i> Approve All Winnings
+                            </button>
+                        </form>
+                    @endif
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle" id="winnersTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Customer</th>
+                                    <th>Booked Digits</th>
+                                    <th>Qty</th>
+                                    <th>Win Amount</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($winnersByBooking as $bookingId => $items)
+                                    @php
+                                        $firstItem = $items->first();
+                                        $bookedDigit = $items->pluck('booked_digits')->filter()->first() ?? ($firstItem['booked_digits'] ?? '-');
+                                        $groupName = strtoupper($firstItem['group_name'] ?? 'N/A');
+                                        $ticketAmts = $items->map(fn($it) => (float)($it['ticket_amt'] ?? $it['ticket_amount'] ?? 0))->filter()->unique();
+                                        $ticketAmtDisplay = $ticketAmts->map(fn($amt) => '₹' . number_format($amt, 2))->implode(', ');
+                                        $totalWin = $items->sum('win_amount');
+                                        $isApproved = !empty($firstItem['winning_approved']);
+                                    @endphp
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>
+                                            <strong>{{ $firstItem['customer_name'] }}</strong><br>
+                                            <small class="text-muted">{{ $firstItem['customer_mobile'] }}</small>
+                                        </td>
+                                        <td>
+                                            <strong>{{ $bookedDigit }}</strong><br>
+                                            <small class="text-muted">
+                                                Group: {{ $groupName }}
+                                                @if ($ticketAmtDisplay)
+                                                    | Amt: {{ $ticketAmtDisplay }}
+                                                @endif
+                                            </small>
+                                        </td>
+                                        <td>{{ $items->count() }}</td>
+                                        <td><strong class="text-success">₹{{ number_format($totalWin, 2) }}</strong></td>
+                                        <td>
+                                            @if ($isApproved)
+                                                <span class="badge bg-success">Approved</span>
+                                            @else
+                                                <span class="badge bg-warning">Pending Approval</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if (!$isApproved)
+                                                <form action="{{ route('admin.reports.winningsslots.approve-booking', $bookingId) }}"
+                                                      method="POST"
+                                                      onsubmit="return confirm('Are you sure you want to approve this winning amount?');">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-success">
+                                                        <i class="bx bx-check"></i> Approve
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <button class="btn btn-sm btn-outline-secondary" disabled>Credited</button>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Overall Summary -->
         <div class="card mb-4">
             <div class="card-header">

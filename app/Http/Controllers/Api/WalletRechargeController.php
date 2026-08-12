@@ -30,14 +30,16 @@ class WalletRechargeController extends Controller
         }
 
         // Filter and sort wallet transactions for history
-        $targetRemarks = [
-            'Wallet Recharge',
-            'Lottery Booking Amount Deducted',
-            'Slot winning amount credited',
-        ];
-
-        $transactions = $allTransactions->filter(function ($tx) use ($targetRemarks) {
-            return in_array($tx->remarks, $targetRemarks);
+        $transactions = $allTransactions->filter(function ($tx) {
+            if (!$tx->remarks) return false;
+            $r = trim($tx->remarks);
+            return in_array($r, [
+                'Wallet Recharge',
+                'Lottery Booking Amount Deducted',
+                'Slot winning amount credited',
+                'Slot winning amount credited (Approved by Admin)',
+                'Slot winning amount credited (corrected result)',
+            ]) || str_starts_with($r, 'Slot winning amount credited') || $tx->payment_method === 'slot win';
         })->values();
 
         // Sort latest first

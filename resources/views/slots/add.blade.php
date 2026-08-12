@@ -263,11 +263,10 @@
                                                 </div>
 
                                                 <div class="col-md-2">
-                                                    <label>Digit <span class="text-danger">*</span></label>
+                                                    <label>Digit</label>
                                                     <input type="text"
                                                            name="digit[]"
                                                            class="form-control"
-                                                           required
                                                            value="{{ $item?->digit ?? '' }}"
                                                            placeholder="2"
                                                            maxlength="{{ $cnt }}">
@@ -347,11 +346,10 @@
                                                 </div>
 
                                                 <div class="col-md-2">
-                                                    <label>Digit <span class="text-danger">*</span></label>
+                                                    <label>Digit</label>
                                                     <input type="text"
                                                            name="digit[]"
                                                            class="form-control"
-                                                           required
                                                            placeholder="Digit"
                                                            maxlength="{{ $cnt }}">
                                                 </div>
@@ -453,11 +451,10 @@
                                         </div>
 
                                         <div class="col-md-2">
-                                            <label>Digit <span class="text-danger">*</span></label>
+                                            <label>Digit</label>
                                             <input type="text"
                                                    name="digit[]"
                                                    class="form-control"
-                                                   required
                                                    placeholder="Digit"
                                                    maxlength="{{ $titleCount }}">
                                         </div>
@@ -753,8 +750,8 @@ $(document).ready(function(){
                         <input type="text" name="group_name[]" class="form-control" placeholder="Group Name" value="${String(gVal).replace(/"/g, '&quot;')}" required>
                     </div>
                     <div class="col-md-2">
-                        <label>Digit <span class="text-danger">*</span></label>
-                        <input type="text" name="digit[]" class="form-control" placeholder="Digit" maxlength="${count}" value="${String(dVal).replace(/"/g, '&quot;')}" required>
+                        <label>Digit</label>
+                        <input type="text" name="digit[]" class="form-control" placeholder="Digit" maxlength="${count}" value="${String(dVal).replace(/"/g, '&quot;')}">
                     </div>
                     <div class="col-md-2">
                         <label>Color</label>
@@ -924,8 +921,8 @@ $(document).ready(function(){
                     <input type="text" name="group_name[]" class="form-control" placeholder="Group Name" required>
                 </div>
                 <div class="col-md-2">
-                    <label>Digit <span class="text-danger">*</span></label>
-                    <input type="text" name="digit[]" class="form-control" placeholder="Digit" maxlength="${count}" required>
+                    <label>Digit</label>
+                    <input type="text" name="digit[]" class="form-control" placeholder="Digit" maxlength="${count}">
                 </div>
                 <div class="col-md-2">
                     <label>Color</label>

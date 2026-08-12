@@ -62,6 +62,7 @@ class DailySlotGenerator
                         unset($attributes['slot_items_id'], $attributes['created_at'], $attributes['updated_at'], $attributes['deleted_at']);
 
                         $attributes['slot_id'] = $newSlot->slot_id;
+                        $attributes['digit'] = null;
                         $attributes['created_at'] = $now;
                         $attributes['updated_at'] = $now;
 

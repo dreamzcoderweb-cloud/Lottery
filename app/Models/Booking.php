@@ -23,6 +23,7 @@ class Booking extends Model
         'first_price_flag',
         'second_price_flag',
         'third_price_flag',
+        'winning_approved',
     ];
 
     protected $primaryKey = 'booking_id';

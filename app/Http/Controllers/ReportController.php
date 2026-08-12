@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Booking;
 use App\Models\Slot;
 use App\Models\SlotItem;
+use App\Models\WalletRecharge;
+use App\Models\WalletTransactions;
 use Carbon\Carbon;
-
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -128,6 +131,20 @@ class ReportController extends Controller
             // Fetch customer booking details for all slots
             $customerDetails = $this->getCustomerBookingDetails($slot, $tz);
 
+            $slotWinnerBookings = Booking::where('slot_id', $slot->slot_id)
+                ->where(function ($q) {
+                    $q->where('is_winner', 'true')
+                      ->orWhere('is_winner', true)
+                      ->orWhere('is_winner', 1)
+                      ->orWhere('is_winner', '1');
+                })
+                ->where('win_amount', '>', 0)
+                ->get();
+
+            $pendingCount = $slotWinnerBookings->where('winning_approved', false)->count();
+            $approvedCount = $slotWinnerBookings->where('winning_approved', true)->count();
+            $slotTotalWinAmount = $slotWinnerBookings->sum('win_amount');
+
             $data[] = [
                 'slot_id'            => $slot->slot_id,
                 'main_title'         => $slot->main_title,
@@ -140,6 +157,12 @@ class ReportController extends Controller
                 'status'             => $slot->status,
                 'winning_groups'     => $groups,
                 'customer_details'   => $customerDetails,
+                'winning_summary'    => [
+                    'has_winners'     => $slotWinnerBookings->count() > 0,
+                    'pending_count'   => $pendingCount,
+                    'approved_count'  => $approvedCount,
+                    'total_win_amount'=> $slotTotalWinAmount,
+                ],
             ];
         }
 
@@ -214,6 +237,7 @@ class ReportController extends Controller
                     'booking_time'      => $bookingTime,
                     'quantity'          => 1,
                     'win_amount'        => $isWinner ? ((float)($booking->win_amount ?? 0) / $qty) : 0,
+                    'winning_approved'  => (bool)$booking->winning_approved,
                 ];
 
                 if ($isWinner) {
@@ -222,28 +246,6 @@ class ReportController extends Controller
                     $details['losers'][] = $bookingData;
                 }
             }
-            // $bookingData = [
-            //     'booking_id' => $booking->booking_id,
-            //     'customer_name' => $booking->customer->name ?? 'N/A',
-            //     'customer_mobile' => $booking->customer->mobile ?? 'N/A',
-            //     'customer_id' => $booking->customer_id,
-            //     'ticket_number' => $booking->booking_id, // Using booking_id as ticket number
-            //     'slot_items_id' => $booking->slot_items_id,
-            //     'slot_digit' => $booking->slotItem->digit ?? '-',
-            //     'booked_digits' => $booking->digits ?? '-',
-            //     'group_name' => strtoupper($booking->slotItem->group_name ?? 'N/A'),
-            //     'ticket_amount' => (float) ($booking->amount ?? 0),
-            //     'ticket_amt' => (float) ($booking->slotItem->ticket_amt ?? 0),
-            //     'booking_time' => $bookingTime,
-            //     'quantity' => $booking->qty,
-            //     'win_amount' => $isWinner ? ((float) ($booking->win_amount ?? 0)) : 0,
-            // ];
-
-            // if ($isWinner) {
-            //     $details['winners'][] = $bookingData;
-            // } else {
-            //     $details['losers'][] = $bookingData;
-            // }
         }
         return $details;
     }
@@ -308,6 +310,21 @@ class ReportController extends Controller
         $totalWinAmount = array_sum(array_column($winners, 'win_amount'));
         $totalInvested = array_sum(array_column($losers, 'ticket_amount'));
 
+        $winnerBookingIds = [];
+        $pendingWinnersCount = 0;
+        $approvedWinnersCount = 0;
+        foreach ($winners as $w) {
+            $bId = $w['booking_id'];
+            if (!isset($winnerBookingIds[$bId])) {
+                $winnerBookingIds[$bId] = true;
+                if (!empty($w['winning_approved'])) {
+                    $approvedWinnersCount++;
+                } else {
+                    $pendingWinnersCount++;
+                }
+            }
+        }
+
         return [
             'slot_id' => $slot->slot_id,
             'main_title' => $slot->main_title,
@@ -326,6 +343,8 @@ class ReportController extends Controller
                 'win_percentage' => $winPercentage,
                 'total_win_amount' => $totalWinAmount,
                 'total_invested' => $totalInvested,
+                'pending_winners_count' => $pendingWinnersCount,
+                'approved_winners_count' => $approvedWinnersCount,
             ]
         ];
     }
@@ -346,5 +365,108 @@ class ReportController extends Controller
     {
         $data = $this->getSlotReportData($slot_id);
         return view('Report.slot-tickets', compact('data'));
+    }
+
+    public function approveBookingWinning($booking_id)
+    {
+        try {
+            DB::transaction(function () use ($booking_id) {
+                $booking = Booking::lockForUpdate()->findOrFail($booking_id);
+
+                $isWinner = $booking->is_winner === true || $booking->is_winner === 'true' || $booking->is_winner === 1 || $booking->is_winner === '1';
+
+                if (!$isWinner || (float)$booking->win_amount <= 0) {
+                    throw new \Exception('This booking is not a winning ticket or has zero winning amount.');
+                }
+
+                $existingTx = WalletTransactions::where('customer_id', $booking->customer_id)
+                    ->where('reference_no', 'WIN-' . $booking->booking_id)
+                    ->first();
+
+                if ($booking->winning_approved && $existingTx) {
+                    throw new \Exception('This winning amount has already been approved and credited.');
+                }
+
+                if (!$existingTx) {
+                    $wallet = WalletRecharge::firstOrCreate(
+                        ['customer_id' => $booking->customer_id],
+                        ['balance' => 0]
+                    );
+                    $wallet->increment('balance', (float)$booking->win_amount);
+
+                    WalletTransactions::create([
+                        'customer_id'     => $booking->customer_id,
+                        'type'            => 'credit',
+                        'amount'          => (float)$booking->win_amount,
+                        'payment_method'  => 'slot win',
+                        'reference_no'    => 'WIN-' . $booking->booking_id,
+                        'remarks'         => 'Slot winning amount credited (Approved by Admin)',
+                    ]);
+                }
+
+                $booking->winning_approved = true;
+                $booking->save();
+            });
+
+            return redirect()->back()->with('success', 'Winning amount approved and credited to user wallet successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('danger', 'Error: ' . $e->getMessage());
+        }
+    }
+
+    public function approveSlotWinnings($slot_id)
+    {
+        try {
+            $approvedCount = 0;
+            DB::transaction(function () use ($slot_id, &$approvedCount) {
+                $winningBookings = Booking::where('slot_id', $slot_id)
+                    ->where(function ($q) {
+                        $q->where('is_winner', 'true')
+                          ->orWhere('is_winner', true)
+                          ->orWhere('is_winner', 1)
+                          ->orWhere('is_winner', '1');
+                    })
+                    ->where('win_amount', '>', 0)
+                    ->lockForUpdate()
+                    ->get();
+
+                foreach ($winningBookings as $booking) {
+                    $existingTx = WalletTransactions::where('customer_id', $booking->customer_id)
+                        ->where('reference_no', 'WIN-' . $booking->booking_id)
+                        ->first();
+
+                    if (!$existingTx) {
+                        $wallet = WalletRecharge::firstOrCreate(
+                            ['customer_id' => $booking->customer_id],
+                            ['balance' => 0]
+                        );
+                        $wallet->increment('balance', (float)$booking->win_amount);
+
+                        WalletTransactions::create([
+                            'customer_id'     => $booking->customer_id,
+                            'type'            => 'credit',
+                            'amount'          => (float)$booking->win_amount,
+                            'payment_method'  => 'slot win',
+                            'reference_no'    => 'WIN-' . $booking->booking_id,
+                            'remarks'         => 'Slot winning amount credited (Approved by Admin)',
+                        ]);
+                    }
+
+                    if (!$booking->winning_approved) {
+                        $booking->winning_approved = true;
+                        $booking->save();
+                        $approvedCount++;
+                    }
+                }
+            });
+
+            if ($approvedCount > 0) {
+                return redirect()->back()->with('success', "{$approvedCount} winning amount(s) approved and credited successfully.");
+            }
+
+            return redirect()->back()->with('success', 'All winning amounts for this slot were already approved.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('danger', 'Error: ' . $e->getMessage());
+        }
     }
 }

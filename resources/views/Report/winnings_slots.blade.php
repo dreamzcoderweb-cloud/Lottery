@@ -48,61 +48,92 @@
             <div class="table-responsive p-3">
                 <table id="winnings-slots-table" class="table">
                     <thead class="table-light">
-                        <tr>
-                            <th>#</th>
-                            <th>Main Title</th>
-                            <th>Slot Title</th>
-                            <th>Draw Date</th>
-                            <th>Draw Time</th>
-                            <th>Booking Close Time</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-border-bottom-0">
-                        @foreach ($data as $slot)
-                            @php
-                                $winningGroups = collect($slot['winning_groups'] ?? []);
-                                $titleLabels = [
-                                    '1' => 'Single Digit',
-                                    '2' => 'Double Digit',
-                                    '3' => 'Three Digit',
-                                    '4' => 'Four Digit',
-                                    '5' => 'Five Digit',
-                                ];
-                                $titleText = collect(explode(',', (string) ($slot['title'] ?? '')))
-                                    ->map(fn ($title) => trim($title))
-                                    ->filter()
-                                    ->map(fn ($title) => $titleLabels[$title] ?? $title)
-                                    ->implode(', ');
-                            @endphp
-
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $slot['main_title'] ?? '-' }}</td>
-                                <td>{{ $titleText ?: ($slot['short_title'] ?? '-') }}</td>
-                                <td>
-                                    {{ !empty($slot['draw_date']) ? Carbon\Carbon::parse($slot['draw_date'])->format('d-m-Y') : '-' }}
-                                </td>
-                                <td>{{ $slot['draw_time'] ?? '-' }}</td>
-                                <td>
-                                    {{ !empty($slot['booking_close_time']) ? Carbon\Carbon::parse($slot['booking_close_time'])->format('h:i A') : '-' }}
-                                </td>
-                                <td>
-                                    <div class="d-flex flex-column gap-1">
-                                        <a href="{{ route('admin.reports.slot-details', ['slot_id' => $slot['slot_id']]) }}"
-                                           class="btn btn-sm btn-info"
-                                           title="View Details">
-                                            <i class="bx bx-show"></i> View
-                                        </a>
-                                        <a href="{{ route('admin.reports.slot-tickets', $slot['slot_id']) }}"
-                                           class="btn btn-sm btn-primary"
-                                           title="View Tickets">
-                                            <i class="bx bx-receipt"></i> View Tickets
-                                        </a>
-                                    </div>
-                                </td>
+                                <th>#</th>
+                                <th>Main Title</th>
+                                <th>Slot Title</th>
+                                <th>Draw Date</th>
+                                <th>Draw Time</th>
+                                <th>Booking Close Time</th>
+                                <th>Winning Status</th>
+                                <th>Action</th>
                             </tr>
-                        @endforeach
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                            @foreach ($data as $slot)
+                                @php
+                                    $winningGroups = collect($slot['winning_groups'] ?? []);
+                                    $titleLabels = [
+                                        '1' => 'Single Digit',
+                                        '2' => 'Double Digit',
+                                        '3' => 'Three Digit',
+                                        '4' => 'Four Digit',
+                                        '5' => 'Five Digit',
+                                    ];
+                                    $titleText = collect(explode(',', (string) ($slot['title'] ?? '')))
+                                        ->map(fn ($title) => trim($title))
+                                        ->filter()
+                                        ->map(fn ($title) => $titleLabels[$title] ?? $title)
+                                        ->implode(', ');
+                                    $winningSummary = $slot['winning_summary'] ?? [];
+                                @endphp
+
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $slot['main_title'] ?? '-' }}</td>
+                                    <td>{{ $titleText ?: ($slot['short_title'] ?? '-') }}</td>
+                                    <td>
+                                        {{ !empty($slot['draw_date']) ? Carbon\Carbon::parse($slot['draw_date'])->format('d-m-Y') : '-' }}
+                                    </td>
+                                    <td>{{ $slot['draw_time'] ?? '-' }}</td>
+                                    <td>
+                                        {{ !empty($slot['booking_close_time']) ? Carbon\Carbon::parse($slot['booking_close_time'])->format('h:i A') : '-' }}
+                                    </td>
+                                    <td>
+                                        @if (!empty($winningSummary['has_winners']))
+                                            @if (($winningSummary['pending_count'] ?? 0) > 0)
+                                                <span class="badge bg-warning mb-1">
+                                                    Pending Approval ({{ $winningSummary['pending_count'] }})
+                                                </span>
+                                            @else
+                                                <span class="badge bg-success mb-1">
+                                                    Approved ({{ $winningSummary['approved_count'] ?? 0 }})
+                                                </span>
+                                            @endif
+                                            <div class="small text-muted">
+                                                Win Amt: ₹{{ number_format((float)($winningSummary['total_win_amount'] ?? 0), 2) }}
+                                            </div>
+                                        @else
+                                            <span class="text-muted">No Winners</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column gap-1">
+                                            <a href="{{ route('admin.reports.slot-details', ['slot_id' => $slot['slot_id']]) }}"
+                                               class="btn btn-sm btn-info"
+                                               title="View Details">
+                                                <i class="bx bx-show"></i> View
+                                            </a>
+                                            <a href="{{ route('admin.reports.slot-tickets', $slot['slot_id']) }}"
+                                               class="btn btn-sm btn-primary"
+                                               title="View Tickets">
+                                                <i class="bx bx-receipt"></i> View Tickets
+                                            </a>
+                                            @if (!empty($winningSummary['has_winners']) && ($winningSummary['pending_count'] ?? 0) > 0)
+                                                <form action="{{ route('admin.reports.winningsslots.approve-slot', $slot['slot_id']) }}"
+                                                      method="POST"
+                                                      onbeforeSubmit="return confirm('Are you sure you want to approve and credit winning amounts for this slot?');"
+                                                      onsubmit="return confirm('Are you sure you want to approve and credit winning amounts for this slot?');">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-success w-100" title="Approve Winnings">
+                                                        <i class="bx bx-check-circle"></i> Approve Winnings
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
                     </tbody>
                 </table>
             </div>

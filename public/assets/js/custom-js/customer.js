@@ -42,6 +42,16 @@ $(document).ready(function () {
     // datatable js end
 
     // datatable js start
+    new DataTable('#winnersTable', {
+        layout: {},
+        "ordering": false,
+        oLanguage: {
+            sLengthMenu: "_MENU_",
+        }
+    });
+    // datatable js end
+
+    // datatable js start
     new DataTable('#walletTransactionsTable', {
         layout: {},
         "ordering": false,

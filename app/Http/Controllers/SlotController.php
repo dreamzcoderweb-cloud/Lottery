@@ -197,8 +197,8 @@ class SlotController extends Controller
             'ticket_amt_by_title.*' => ['nullable', 'numeric', 'min:0'],
             'group_name' => ['required', 'array', 'min:1'],
             'group_name.*' => ['required', 'string', 'max:255'],
-            'digit' => ['required', 'array', 'min:1'],
-            'digit.*' => ['required'],
+            'digit' => ['nullable', 'array'],
+            'digit.*' => ['nullable'],
             'item_title_count' => ['required', 'array', 'min:1'],
             'item_title_count.*' => ['required', 'integer', 'in:1,2,3,4,5'],
             'color' => ['nullable', 'array'],
@@ -247,10 +247,12 @@ class SlotController extends Controller
                     }
                 }
 
-                // digit: numeric and exact digits length = $tc
+                // digit: optional; if provided must be numeric and exact length = $tc
                 $dTrim = trim($d);
-                if ($dTrim === '' || preg_match('/^\\d+$/', $dTrim) !== 1 || strlen($dTrim) !== $tc) {
-                    $validator->errors()->add("digit.$i", "Digit must be exactly {$tc} digit(s).");
+                if ($dTrim !== '') {
+                    if (preg_match('/^\d+$/', $dTrim) !== 1 || strlen($dTrim) !== $tc) {
+                        $validator->errors()->add("digit.$i", "Digit must be exactly {$tc} digit(s).");
+                    }
                 }
 
                 if ($tc === 3) {
@@ -384,8 +386,8 @@ class SlotController extends Controller
             'slot_item_id.*' => ['nullable'],
             'group_name' => ['required', 'array', 'min:1'],
             'group_name.*' => ['required', 'string', 'max:255'],
-            'digit' => ['required', 'array', 'min:1'],
-            'digit.*' => ['required'],
+            'digit' => ['nullable', 'array'],
+            'digit.*' => ['nullable'],
             'item_title_count' => ['required', 'array', 'min:1'],
             'item_title_count.*' => ['required', 'integer', 'in:1,2,3,4,5'],
             'color' => ['nullable', 'array'],
