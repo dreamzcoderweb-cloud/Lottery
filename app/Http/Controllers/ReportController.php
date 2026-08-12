@@ -232,7 +232,7 @@ class ReportController extends Controller
                     'slot_digit'        => $currentSlotItem->digit ?? '-',
                     'booked_digits'     => $booking->digits ?? '-',
                     'group_name'        => strtoupper($currentSlotItem->group_name ?? 'N/A'),
-                    'ticket_amount'     => (float)($booking->amount ?? 0),
+                    'ticket_amount'     => $qty > 0 ? ((float)($booking->amount ?? 0) / $qty) : (float)($booking->amount ?? 0),
                     'ticket_amt'        => (float)($currentSlotItem->ticket_amt ?? 0),
                     'booking_time'      => $bookingTime,
                     'quantity'          => 1,
@@ -308,7 +308,7 @@ class ReportController extends Controller
         $totalTickets = count($winners) + count($losers);
         $winPercentage = $totalTickets > 0 ? round((count($winners) / $totalTickets) * 100) : 0;
         $totalWinAmount = array_sum(array_column($winners, 'win_amount'));
-        $totalInvested = array_sum(array_column($losers, 'ticket_amount'));
+        $totalInvested = array_sum(array_column($winners, 'ticket_amount')) + array_sum(array_column($losers, 'ticket_amount'));
 
         $winnerBookingIds = [];
         $pendingWinnersCount = 0;

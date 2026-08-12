@@ -214,7 +214,7 @@
                             <div class="col-md-6 text-md-end">
                                 <strong>Total Amount Invested:</strong>
                                 <span class="text-danger" style="font-size: 1.1rem; font-weight: bold;">
-                                    ₹{{ number_format(array_sum(array_column($losers, 'ticket_amount')), 2) }}
+                                    ₹{{ number_format($data['summary']['total_invested'], 2) }}
                                 </span>
                             </div>
                         </div>
