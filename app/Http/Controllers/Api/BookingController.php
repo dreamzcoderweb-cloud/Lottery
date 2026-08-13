@@ -242,225 +242,300 @@ class BookingController extends Controller
 
 
     private function processResults($customer, $slotId = null)
-{
-    $bookingsQuery = Booking::with([
-            'slot.items',
-            'slotItem'
-        ])
-        ->where('customer_id', $customer->customer_id)
-        ->where('status', 'success');
+    {
+        $bookingsQuery = Booking::with(['slot.items','slotItem'])->where('customer_id', $customer->customer_id)->where('status', 'success');
 
-    if ($slotId) {
-        $bookingsQuery->where('slot_id', $slotId);
-    }
-
-    $bookings = $bookingsQuery->get();
-
-    $totalWinAmount = 0;
-    $winningBookings = [];
-    $expiredSlots = [];
-    $expiredSlotIds = [];
-    $threeDigitCount = 0;
-
-    $currentDateTime = Carbon::now('Asia/Kolkata');
-    $currentDate = $currentDateTime->format('Y-m-d');
-
-    foreach ($bookings as $booking) {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Slot Exists Check
-        |--------------------------------------------------------------------------
-        */
-
-        if (!$booking->slot) {
-            continue;
+        if ($slotId) {
+            $bookingsQuery->where('slot_id', $slotId);
         }
 
-        $slot = $booking->slot;
+        $bookings = $bookingsQuery->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Future Slot Skip
-        |--------------------------------------------------------------------------
-        */
+        $totalWinAmount = 0;
+        $winningBookings = [];
+        $expiredSlots = [];
+        $expiredSlotIds = [];
+        $threeDigitCount = 0;
 
-        if ($slot->draw_date > $currentDate) {
-            continue;
-        }
+        $currentDateTime = Carbon::now('Asia/Kolkata');
+        $currentDate = $currentDateTime->format('Y-m-d');
 
+        foreach ($bookings as $booking) {
 
+            /*
+            |--------------------------------------------------------------------------
+            | Slot Exists Check
+            |--------------------------------------------------------------------------
+            */
 
-        /*
-        |--------------------------------------------------------------------------
-        | Close Time Check (Commented Out)
-        |--------------------------------------------------------------------------
-        */
-
-        /*
-        $closeTime = $slot->booking_close_time ?? ($slot->close_time ?? null);
-
-        if (!empty($slot->draw_date) && !empty($closeTime)) {
-            $closeTimeString = (string) $closeTime;
-            if (preg_match('/^\d{2}:\d{2}$/', $closeTimeString)) {
-                $closeTimeString .= ':00';
-            }
-
-            try {
-                $closeDateTime = Carbon::createFromFormat(
-                    'Y-m-d H:i:s',
-                    $slot->draw_date . ' ' . $closeTimeString,
-                    'Asia/Kolkata'
-                );
-            } catch (\Throwable $e) {
-                $closeDateTime = Carbon::parse(
-                    $slot->draw_date . ' ' . $closeTimeString,
-                    'Asia/Kolkata'
-                );
-            }
-
-            // If current time is before closing time, slot is still open for booking
-            if ($currentDateTime->timestamp < $closeDateTime->timestamp) {
+            if (!$booking->slot) {
                 continue;
             }
-        }
-        */
 
-        /*
-        |--------------------------------------------------------------------------
-        | Digits Null Check (All digits must be non-null)
-        |--------------------------------------------------------------------------
-        */
+            $slot = $booking->slot;
 
-        if (is_null($booking->digits) || trim((string) $booking->digits) === '') {
-            continue;
-        }
+            /*
+            |--------------------------------------------------------------------------
+            | Future Slot Skip
+            |--------------------------------------------------------------------------
+            */
 
-        $slotItems = $slot->items;
-        if ($slotItems->isEmpty()) {
-            continue;
-        }
+            if ($slot->draw_date > $currentDate) {
+                continue;
+            }
 
-        $hasNullDigits = $slotItems->contains(function ($item) {
-            return is_null($item->digit) || trim((string) $item->digit) === '';
-        });
 
-        if ($hasNullDigits) {
-            continue;
-        }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Already Processed
-        |--------------------------------------------------------------------------
-        */
+            /*
+            |--------------------------------------------------------------------------
+            | Close Time Check (Commented Out)
+            |--------------------------------------------------------------------------
+            */
 
-        if ((int)$booking->title_id === 3) {
-            $slotItem = $booking->slotItem ?? SlotItem::find($booking->slot_items_id);
-            $threeDigitResult = $this->resolveThreeDigitPrize($booking, $slotItem);
+            /*
+            $closeTime = $slot->booking_close_time ?? ($slot->close_time ?? null);
 
-            if ($threeDigitResult['is_winner']) {
-                $expectedWinAmount = $threeDigitResult['win_amount'];
-                $expectedFlags = [
-                    'first_price_flag' => $threeDigitResult['first_price_flag'] ? 'true' : null,
-                    'second_price_flag' => $threeDigitResult['second_price_flag'] ? 'true' : null,
-                    'third_price_flag' => $threeDigitResult['third_price_flag'] ? 'true' : null,
-                ];
-
-                if (
-                    $booking->is_winner !== "true" ||
-                    (float) ($booking->win_amount ?? 0) !== (float) $expectedWinAmount ||
-                    $booking->first_price_flag !== $expectedFlags['first_price_flag'] ||
-                    $booking->second_price_flag !== $expectedFlags['second_price_flag'] ||
-                    $booking->third_price_flag !== $expectedFlags['third_price_flag']
-                ) {
-                    $booking->update(array_merge([
-                        'is_winner' => "true",
-                        'win_amount' => $expectedWinAmount,
-                    ], $expectedFlags));
+            if (!empty($slot->draw_date) && !empty($closeTime)) {
+                $closeTimeString = (string) $closeTime;
+                if (preg_match('/^\d{2}:\d{2}$/', $closeTimeString)) {
+                    $closeTimeString .= ':00';
                 }
 
+                try {
+                    $closeDateTime = Carbon::createFromFormat(
+                        'Y-m-d H:i:s',
+                        $slot->draw_date . ' ' . $closeTimeString,
+                        'Asia/Kolkata'
+                    );
+                } catch (\Throwable $e) {
+                    $closeDateTime = Carbon::parse(
+                        $slot->draw_date . ' ' . $closeTimeString,
+                        'Asia/Kolkata'
+                    );
+                }
+
+                // If current time is before closing time, slot is still open for booking
+                if ($currentDateTime->timestamp < $closeDateTime->timestamp) {
+                    continue;
+                }
+            }
+            */
+
+            /*
+            |--------------------------------------------------------------------------
+            | Digits Null Check (All digits must be non-null)
+            |--------------------------------------------------------------------------
+            */
+
+            if (is_null($booking->digits) || trim((string) $booking->digits) === '') {
+                continue;
+            }
+
+            $slotItems = $slot->items;
+            if ($slotItems->isEmpty()) {
+                continue;
+            }
+
+            $hasNullDigits = $slotItems->contains(function ($item) {
+                return is_null($item->digit) || trim((string) $item->digit) === '';
+            });
+
+            if ($hasNullDigits) {
+                continue;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Already Processed
+            |--------------------------------------------------------------------------
+            */
+
+            if ((int)$booking->title_id === 3) {
+                $slotItem = $booking->slotItem ?? SlotItem::find($booking->slot_items_id);
+                $threeDigitResult = $this->resolveThreeDigitPrize($booking, $slotItem);
+
+                if ($threeDigitResult['is_winner']) {
+                    $expectedWinAmount = $threeDigitResult['win_amount'];
+                    $expectedFlags = [
+                        'first_price_flag' => $threeDigitResult['first_price_flag'] ? 'true' : null,
+                        'second_price_flag' => $threeDigitResult['second_price_flag'] ? 'true' : null,
+                        'third_price_flag' => $threeDigitResult['third_price_flag'] ? 'true' : null,
+                    ];
+
+                    if ($booking->is_winner !== "true" || (float) ($booking->win_amount ?? 0) !== (float) $expectedWinAmount ||
+                        $booking->first_price_flag !== $expectedFlags['first_price_flag'] ||
+                        $booking->second_price_flag !== $expectedFlags['second_price_flag'] ||
+                        $booking->third_price_flag !== $expectedFlags['third_price_flag']
+                    ) {
+                        $booking->update(array_merge([
+                            'is_winner' => "true",
+                            'win_amount' => $expectedWinAmount,
+                        ], $expectedFlags));
+                    }
 
 
-                $totalWinAmount += $expectedWinAmount;
 
-                $winnerData = [
+                    $totalWinAmount += $expectedWinAmount;
+
+                    $winnerData = [
+                        'booking_id'        => $booking->booking_id,
+                        'slot_id'           => $booking->slot_id,
+                        'slot_items_id'     => $booking->slot_items_id,
+                        'title'             => $booking->title_id,
+                        'digits'            => $booking->digits,
+                        'qty'               => $booking->qty,
+                        'single_win_amount' => $threeDigitResult['single_win_amount'],
+                        'win_amount'        => $expectedWinAmount,
+                        'first_price_flag'  => $threeDigitResult['first_price_flag'],
+                        'second_price_flag' => $threeDigitResult['second_price_flag'],
+                        'third_price_flag'  => $threeDigitResult['third_price_flag'],
+                        'winning_approved'  => (int) ($booking->winning_approved ?? 0),
+                    ];
+
+                    $winningBookings[] = $winnerData;
+                } else {
+                    if ($booking->is_winner !== "false") {
+                        $booking->update([
+                            'is_winner' => "false",
+                            'win_amount' => 0,
+                            'first_price_flag' => null,
+                            'second_price_flag' => null,
+                            'third_price_flag' => null,
+                        ]);
+                    }
+                }
+
+                if ($slot->draw_date < $currentDate && !in_array($slot->slot_id, $expiredSlotIds)) {
+                    $expiredSlots[] = [
+                        'slot_id'   => $slot->slot_id,
+                        'message'   => 'Slot expired',
+                        'draw_date' => $slot->draw_date
+                    ];
+                    $expiredSlotIds[] = $slot->slot_id;
+                }
+
+                continue;
+            }
+
+            if (!is_null($booking->is_winner)) {
+
+                $isWinnerVal = $booking->is_winner === true || $booking->is_winner === "true" || $booking->is_winner === 1 || $booking->is_winner === "1";
+
+                if ($isWinnerVal) {
+                    $singleWinAmount = optional($booking->slotItem)->win_amount;
+
+                    $winnerData = [
+                        'booking_id'        => $booking->booking_id,
+                        'slot_id'           => $booking->slot_id,
+                        'slot_items_id'     => $booking->slot_items_id,
+                        'title'             => $booking->title_id,
+                        'digits'            => $booking->digits,
+                        'qty'               => $booking->qty,
+                        'single_win_amount' => $singleWinAmount,
+                        'win_amount'        => $booking->win_amount,
+                        'winning_approved'  => (int) ($booking->winning_approved ?? 0),
+                    ];
+
+                    $winningBookings[] = $winnerData;
+
+                    $totalWinAmount += (float) ($booking->win_amount ?? 0);
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | Expired Slot List
+                |--------------------------------------------------------------------------
+                */
+
+                if ($slot->draw_date < $currentDate && !in_array($slot->slot_id, $expiredSlotIds)) {
+
+                    $expiredSlots[] = [
+                        'slot_id'   => $slot->slot_id,
+                        'message'   => 'Slot expired',
+                        'draw_date' => $slot->draw_date
+                    ];
+
+                    $expiredSlotIds[] = $slot->slot_id;
+                }
+
+                continue;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Winner Check
+            |--------------------------------------------------------------------------
+            */
+
+            // Non-3-digit title logic:
+            $winnerSlotItem = SlotItem::find($booking->slot_items_id);
+
+            if ($winnerSlotItem && $winnerSlotItem->slot_id == $booking->slot_id && $winnerSlotItem->title == $booking->title_id && (string)$winnerSlotItem->digit === (string)$booking->digits) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Win Amount Calculation
+                |--------------------------------------------------------------------------
+                */
+
+                $winAmount = $winnerSlotItem->win_amount * $booking->qty;
+
+                /*
+                |--------------------------------------------------------------------------
+                | Booking Update
+                |--------------------------------------------------------------------------
+                */
+
+                $booking->update([
+                    'is_winner' => "true",
+                    'win_amount' => $winAmount
+                ]);
+
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Response Data
+                |--------------------------------------------------------------------------
+                */
+
+                $totalWinAmount += $winAmount;
+
+                $winningBookings[] = [
                     'booking_id'        => $booking->booking_id,
                     'slot_id'           => $booking->slot_id,
                     'slot_items_id'     => $booking->slot_items_id,
                     'title'             => $booking->title_id,
                     'digits'            => $booking->digits,
                     'qty'               => $booking->qty,
-                    'single_win_amount' => $threeDigitResult['single_win_amount'],
-                    'win_amount'        => $expectedWinAmount,
-                    'first_price_flag'  => $threeDigitResult['first_price_flag'],
-                    'second_price_flag' => $threeDigitResult['second_price_flag'],
-                    'third_price_flag'  => $threeDigitResult['third_price_flag'],
+                    'single_win_amount' => $winnerSlotItem->win_amount,
+                    'win_amount'        => $winAmount,
                     'winning_approved'  => (int) ($booking->winning_approved ?? 0),
                 ];
 
-                $winningBookings[] = $winnerData;
             } else {
-                if ($booking->is_winner !== "false") {
-                    $booking->update([
-                        'is_winner' => "false",
-                        'win_amount' => 0,
-                        'first_price_flag' => null,
-                        'second_price_flag' => null,
-                        'third_price_flag' => null,
-                    ]);
-                }
-            }
 
-            if (
-                $slot->draw_date < $currentDate &&
-                !in_array($slot->slot_id, $expiredSlotIds)
-            ) {
-                $expiredSlots[] = [
-                    'slot_id'   => $slot->slot_id,
-                    'message'   => 'Slot expired',
-                    'draw_date' => $slot->draw_date
-                ];
-                $expiredSlotIds[] = $slot->slot_id;
-            }
+                /*
+                |--------------------------------------------------------------------------
+                | Non Winner
+                |--------------------------------------------------------------------------
+                */
 
-            continue;
-        }
+                $booking->update([
+                    'is_winner' => "false",
+                    'win_amount' => 0
+                ]);
 
-        if (!is_null($booking->is_winner)) {
-
-            $isWinnerVal = $booking->is_winner === true || $booking->is_winner === "true" || $booking->is_winner === 1 || $booking->is_winner === "1";
-
-            if ($isWinnerVal) {
-                $singleWinAmount = optional($booking->slotItem)->win_amount;
-
-                $winnerData = [
-                    'booking_id'        => $booking->booking_id,
-                    'slot_id'           => $booking->slot_id,
-                    'slot_items_id'     => $booking->slot_items_id,
-                    'title'             => $booking->title_id,
-                    'digits'            => $booking->digits,
-                    'qty'               => $booking->qty,
-                    'single_win_amount' => $singleWinAmount,
-                    'win_amount'        => $booking->win_amount,
-                    'winning_approved'  => (int) ($booking->winning_approved ?? 0),
-                ];
-
-                $winningBookings[] = $winnerData;
-
-                $totalWinAmount += (float) ($booking->win_amount ?? 0);
+                // Do not create a zero-value wallet transaction for non-winning bookings.
             }
 
             /*
             |--------------------------------------------------------------------------
-            | Expired Slot List
+            | Expired Slot Add
             |--------------------------------------------------------------------------
             */
 
-            if (
-                $slot->draw_date < $currentDate &&
-                !in_array($slot->slot_id, $expiredSlotIds)
-            ) {
+            if ($slot->draw_date < $currentDate && !in_array($slot->slot_id, $expiredSlotIds)) {
 
                 $expiredSlots[] = [
                     'slot_id'   => $slot->slot_id,
@@ -470,110 +545,14 @@ class BookingController extends Controller
 
                 $expiredSlotIds[] = $slot->slot_id;
             }
-
-            continue;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Winner Check
-        |--------------------------------------------------------------------------
-        */
-
-        // Non-3-digit title logic:
-        $winnerSlotItem = SlotItem::find($booking->slot_items_id);
-
-        if (
-            $winnerSlotItem &&
-            $winnerSlotItem->slot_id == $booking->slot_id &&
-            $winnerSlotItem->title == $booking->title_id &&
-            (string)$winnerSlotItem->digit === (string)$booking->digits
-        ) {
-
-            /*
-            |--------------------------------------------------------------------------
-            | Win Amount Calculation
-            |--------------------------------------------------------------------------
-            */
-
-            $winAmount = $winnerSlotItem->win_amount * $booking->qty;
-
-            /*
-            |--------------------------------------------------------------------------
-            | Booking Update
-            |--------------------------------------------------------------------------
-            */
-
-            $booking->update([
-                'is_winner' => "true",
-                'win_amount' => $winAmount
-            ]);
-
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Response Data
-            |--------------------------------------------------------------------------
-            */
-
-            $totalWinAmount += $winAmount;
-
-            $winningBookings[] = [
-                'booking_id'        => $booking->booking_id,
-                'slot_id'           => $booking->slot_id,
-                'slot_items_id'     => $booking->slot_items_id,
-                'title'             => $booking->title_id,
-                'digits'            => $booking->digits,
-                'qty'               => $booking->qty,
-                'single_win_amount' => $winnerSlotItem->win_amount,
-                'win_amount'        => $winAmount,
-                'winning_approved'  => (int) ($booking->winning_approved ?? 0),
-            ];
-
-        } else {
-
-            /*
-            |--------------------------------------------------------------------------
-            | Non Winner
-            |--------------------------------------------------------------------------
-            */
-
-            $booking->update([
-                'is_winner' => "false",
-                'win_amount' => 0
-            ]);
-
-            // Do not create a zero-value wallet transaction for non-winning bookings.
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Expired Slot Add
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            $slot->draw_date < $currentDate &&
-            !in_array($slot->slot_id, $expiredSlotIds)
-        ) {
-
-            $expiredSlots[] = [
-                'slot_id'   => $slot->slot_id,
-                'message'   => 'Slot expired',
-                'draw_date' => $slot->draw_date
-            ];
-
-            $expiredSlotIds[] = $slot->slot_id;
-        }
+        return [
+            'total_win_amount' => $totalWinAmount,
+            'winners' => $winningBookings,
+            'expired_slots' => $expiredSlots,
+        ];
     }
-
-    return [
-        'total_win_amount' => $totalWinAmount,
-        'winners' => $winningBookings,
-        'expired_slots' => $expiredSlots,
-    ];
-}
 
     private function resolveThreeDigitPrize(Booking $booking, ?SlotItem $slotItem): array
     {
@@ -619,28 +598,28 @@ class BookingController extends Controller
         return $result;
     }
 
-   private function getThreeDigitSlotItem(Booking $booking, ?SlotItem $slotItem): ?SlotItem
-{
-    // Calculate per-ticket amount
-    $ticketAmount = $booking->qty > 0
-        ? ($booking->amount / $booking->qty)
-        : $booking->amount;
+    private function getThreeDigitSlotItem(Booking $booking, ?SlotItem $slotItem): ?SlotItem
+    {
+        // Calculate per-ticket amount
+        $ticketAmount = $booking->qty > 0
+            ? ($booking->amount / $booking->qty)
+            : $booking->amount;
 
-    // Reuse the existing SlotItem if it already matches
-    if (
-        $slotItem &&
-        (int) $slotItem->slot_id === (int) $booking->slot_id &&
-        (int) $slotItem->title === (int) $booking->title_id &&
-        (float) $slotItem->ticket_amt === (float) $ticketAmount
-    ) {
-        return $slotItem;
+        // Reuse the existing SlotItem if it already matches
+        if (
+            $slotItem &&
+            (int) $slotItem->slot_id === (int) $booking->slot_id &&
+            (int) $slotItem->title === (int) $booking->title_id &&
+            (float) $slotItem->ticket_amt === (float) $ticketAmount
+        ) {
+            return $slotItem;
+        }
+
+        // Find the correct SlotItem
+        $query = SlotItem::where('slot_id', $booking->slot_id)
+            ->where('title', $booking->title_id)
+            ->where('ticket_amt', $ticketAmount);
+
+        return $query->first();
     }
-
-    // Find the correct SlotItem
-    $query = SlotItem::where('slot_id', $booking->slot_id)
-        ->where('title', $booking->title_id)
-        ->where('ticket_amt', $ticketAmount);
-
-    return $query->first();
-}
 }

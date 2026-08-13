@@ -2,9 +2,9 @@
 @section('title', 'Admin Panel Settings - Super Admin')
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
-        <div class="d-flex align-items-center justify-content-between mb-4">
+        {{-- <div class="d-flex align-items-center justify-content-between mb-4">
             <h4 class="fw-bold mb-0">Admin Panel Settings</h4>
-        </div>
+        </div> --}}
 
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
