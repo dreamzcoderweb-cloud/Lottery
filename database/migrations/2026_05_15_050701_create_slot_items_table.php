@@ -17,6 +17,8 @@ return new class extends Migration
 
             $table->unsignedBigInteger('slot_id');
 
+            $table->integer('title')->nullable();
+
             $table->string('group_name');
 
             $table->integer('digit');

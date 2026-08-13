@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('slot_id');
             $table->integer('slot_items_id');
             $table->string('title_id');
+            $table->string('digits')->nullable();
             $table->integer('qty');
             $table->decimal('amount', 10, 2);
             $table->enum('status', ['pending', 'success', 'cancelled','settled'])->default('pending');
