@@ -60,6 +60,17 @@ $(document).ready(function () {
         }
     });
     // datatable js end
+
+    // datatable js start
+    new DataTable('#winninggroups', {
+        layout: {},
+        "ordering": false,
+        oLanguage: {
+            sLengthMenu: "_MENU_",
+        }
+    });
+    // datatable js end
+
     // datatable js start
         new DataTable('#withdrawalsTable', {
         ordering: false,
