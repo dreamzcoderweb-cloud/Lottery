@@ -214,13 +214,21 @@ class ReportController extends Controller
                 continue;
             }
 
+            $qty = max(1, (int) $booking->qty);
+            $ticketAmount = $qty > 0 ? ((float) $booking->amount / $qty) : (float) $booking->amount;
+
             if ((int) $booking->title_id === 3) {
-                $slotItem = $booking->slotItem;
-                if (!$slotItem || (int) $slotItem->slot_id !== (int) $booking->slot_id || (int) $slotItem->title !== (int) $booking->title_id) {
-                    $ticketAmount = $booking->qty > 0 ? ((float) $booking->amount / $booking->qty) : (float) $booking->amount;
-                    $slotItem = $slotItems->filter(function ($item) use ($booking, $ticketAmount) {
-                        return (int) $item->title === (int) $booking->title_id && (float) $item->ticket_amt === (float) $ticketAmount;
-                    })->first() ?? $slotItems->firstWhere('title', 3) ?? $slotItems->first();
+                // Find SlotItem for Title 3 matching slot_id, title_id, and unit ticket_amt
+                $slotItem = $slotItems->filter(function ($item) use ($booking, $ticketAmount) {
+                    return (int) $item->title === (int) $booking->title_id
+                        && abs((float) $item->ticket_amt - (float) $ticketAmount) < 0.01;
+                })->first();
+
+                if (!$slotItem) {
+                    $slotItem = $booking->slotItem;
+                    if (!$slotItem || (int) $slotItem->slot_id !== (int) $booking->slot_id || (int) $slotItem->title !== (int) $booking->title_id) {
+                        $slotItem = $slotItems->firstWhere('title', 3) ?? $slotItems->first();
+                    }
                 }
 
                 if (!$slotItem || is_null($slotItem->digit)) {
@@ -236,20 +244,23 @@ class ReportController extends Controller
                 $secondPriceFlag = null;
                 $thirdPriceFlag = null;
 
+                $firstTwoDigitsMatch = substr($bookingDigitStr, 0, 2) === substr($winningDigitStr, 0, 2);
+                $lastDigitMatches = substr($bookingDigitStr, 2, 1) === substr($winningDigitStr, 2, 1);
+
                 if ($bookingDigitStr === $winningDigitStr) {
                     $isWinner = true;
                     $singleWin = (float) $slotItem->first_price;
-                    $winAmount = $singleWin * $booking->qty;
+                    $winAmount = $singleWin * $qty;
                     $firstPriceFlag = 'true';
-                } elseif (substr($bookingDigitStr, 1, 2) === substr($winningDigitStr, 1, 2)) {
+                } elseif ($firstTwoDigitsMatch) {
                     $isWinner = true;
                     $singleWin = (float) $slotItem->second_price;
-                    $winAmount = $singleWin * $booking->qty;
+                    $winAmount = $singleWin * $qty;
                     $secondPriceFlag = 'true';
-                } elseif (substr($bookingDigitStr, 2, 1) === substr($winningDigitStr, 2, 1)) {
+                } elseif ($lastDigitMatches) {
                     $isWinner = true;
                     $singleWin = (float) $slotItem->third_price;
-                    $winAmount = $singleWin * $booking->qty;
+                    $winAmount = $singleWin * $qty;
                     $thirdPriceFlag = 'true';
                 }
 
@@ -272,15 +283,20 @@ class ReportController extends Controller
                 }
             } else {
                 $winnerSlotItem = $booking->slotItem;
+
                 if (!$winnerSlotItem || (int) $winnerSlotItem->slot_id !== (int) $booking->slot_id || (int) $winnerSlotItem->title !== (int) $booking->title_id) {
-                    $winnerSlotItem = $slotItems->firstWhere('slot_items_id', $booking->slot_items_id)
-                        ?? $slotItems->filter(function ($item) use ($booking) {
-                            return (int) $item->title === (int) $booking->title_id;
-                        })->first();
+                    $winnerSlotItem = $slotItems->firstWhere('slot_items_id', $booking->slot_items_id);
+                }
+
+                if (!$winnerSlotItem) {
+                    $winnerSlotItem = $slotItems->filter(function ($item) use ($booking, $ticketAmount) {
+                        return (int) $item->title === (int) $booking->title_id
+                            && (abs((float) $item->ticket_amt - (float) $ticketAmount) < 0.01 || (float) $item->ticket_amt <= 0);
+                    })->first();
                 }
 
                 if ($winnerSlotItem && (string) $winnerSlotItem->digit === (string) $booking->digits) {
-                    $winAmount = (float) $winnerSlotItem->win_amount * $booking->qty;
+                    $winAmount = (float) $winnerSlotItem->win_amount * $qty;
                     if ($booking->is_winner !== 'true' || (float) ($booking->win_amount ?? 0) !== (float) $winAmount) {
                         $booking->update([
                             'is_winner'  => 'true',

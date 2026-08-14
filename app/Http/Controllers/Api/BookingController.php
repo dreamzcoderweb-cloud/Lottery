@@ -417,87 +417,33 @@ class BookingController extends Controller
                 continue;
             }
 
-            if (!is_null($booking->is_winner)) {
+            // Non-3-digit title logic:
+            $qty = max(1, (int) $booking->qty);
+            $ticketAmount = $qty > 0 ? ((float) $booking->amount / $qty) : (float) $booking->amount;
 
-                $isWinnerVal = $booking->is_winner === true || $booking->is_winner === "true" || $booking->is_winner === 1 || $booking->is_winner === "1";
+            $winnerSlotItem = $booking->slotItem ?? SlotItem::find($booking->slot_items_id);
 
-                if ($isWinnerVal) {
-                    $singleWinAmount = optional($booking->slotItem)->win_amount;
-
-                    $winnerData = [
-                        'booking_id'        => $booking->booking_id,
-                        'slot_id'           => $booking->slot_id,
-                        'slot_items_id'     => $booking->slot_items_id,
-                        'title'             => $booking->title_id,
-                        'digits'            => $booking->digits,
-                        'qty'               => $booking->qty,
-                        'single_win_amount' => $singleWinAmount,
-                        'win_amount'        => $booking->win_amount,
-                        'winning_approved'  => (int) ($booking->winning_approved ?? 0),
-                    ];
-
-                    $winningBookings[] = $winnerData;
-
-                    $totalWinAmount += (float) ($booking->win_amount ?? 0);
-                }
-
-                /*
-                |--------------------------------------------------------------------------
-                | Expired Slot List
-                |--------------------------------------------------------------------------
-                */
-
-                if ($slot->draw_date < $currentDate && !in_array($slot->slot_id, $expiredSlotIds)) {
-
-                    $expiredSlots[] = [
-                        'slot_id'   => $slot->slot_id,
-                        'message'   => 'Slot expired',
-                        'draw_date' => $slot->draw_date
-                    ];
-
-                    $expiredSlotIds[] = $slot->slot_id;
-                }
-
-                continue;
+            if (!$winnerSlotItem || (int) $winnerSlotItem->slot_id !== (int) $booking->slot_id || (int) $winnerSlotItem->title !== (int) $booking->title_id) {
+                $winnerSlotItem = $slotItems->firstWhere('slot_items_id', $booking->slot_items_id);
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Winner Check
-            |--------------------------------------------------------------------------
-            */
+            if (!$winnerSlotItem) {
+                $winnerSlotItem = $slotItems->filter(function ($item) use ($booking, $ticketAmount) {
+                    return (int) $item->title === (int) $booking->title_id
+                        && (abs((float) $item->ticket_amt - (float) $ticketAmount) < 0.01 || (float) $item->ticket_amt <= 0);
+                })->first();
+            }
 
-            // Non-3-digit title logic:
-            $winnerSlotItem = SlotItem::find($booking->slot_items_id);
+            if ($winnerSlotItem && (string) $winnerSlotItem->digit === (string) $booking->digits) {
+                $singleWinAmount = (float) $winnerSlotItem->win_amount;
+                $winAmount = $singleWinAmount * $qty;
 
-            if ($winnerSlotItem && $winnerSlotItem->slot_id == $booking->slot_id && $winnerSlotItem->title == $booking->title_id && (string)$winnerSlotItem->digit === (string)$booking->digits) {
-
-                /*
-                |--------------------------------------------------------------------------
-                | Win Amount Calculation
-                |--------------------------------------------------------------------------
-                */
-
-                $winAmount = $winnerSlotItem->win_amount * $booking->qty;
-
-                /*
-                |--------------------------------------------------------------------------
-                | Booking Update
-                |--------------------------------------------------------------------------
-                */
-
-                $booking->update([
-                    'is_winner' => "true",
-                    'win_amount' => $winAmount
-                ]);
-
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | Response Data
-                |--------------------------------------------------------------------------
-                */
+                if ($booking->is_winner !== "true" || (float) ($booking->win_amount ?? 0) !== (float) $winAmount) {
+                    $booking->update([
+                        'is_winner' => "true",
+                        'win_amount' => $winAmount,
+                    ]);
+                }
 
                 $totalWinAmount += $winAmount;
 
@@ -508,25 +454,17 @@ class BookingController extends Controller
                     'title'             => $booking->title_id,
                     'digits'            => $booking->digits,
                     'qty'               => $booking->qty,
-                    'single_win_amount' => $winnerSlotItem->win_amount,
+                    'single_win_amount' => $singleWinAmount,
                     'win_amount'        => $winAmount,
                     'winning_approved'  => (int) ($booking->winning_approved ?? 0),
                 ];
-
             } else {
-
-                /*
-                |--------------------------------------------------------------------------
-                | Non Winner
-                |--------------------------------------------------------------------------
-                */
-
-                $booking->update([
-                    'is_winner' => "false",
-                    'win_amount' => 0
-                ]);
-
-                // Do not create a zero-value wallet transaction for non-winning bookings.
+                if ($booking->is_winner !== "false" || (float) ($booking->win_amount ?? 0) !== 0.0) {
+                    $booking->update([
+                        'is_winner' => "false",
+                        'win_amount' => 0,
+                    ]);
+                }
             }
 
             /*
@@ -578,20 +516,25 @@ class BookingController extends Controller
         $bookingDigitStr = str_pad((string)$booking->digits, 3, '0', STR_PAD_LEFT);
         $winningDigitStr = str_pad((string)$slotItem->digit, 3, '0', STR_PAD_LEFT);
 
+        $qty = max(1, (int) $booking->qty);
+
+        $firstTwoDigitsMatch = substr($bookingDigitStr, 0, 2) === substr($winningDigitStr, 0, 2);
+        $lastDigitMatches = substr($bookingDigitStr, 2, 1) === substr($winningDigitStr, 2, 1);
+
         if ($bookingDigitStr === $winningDigitStr) {
             $result['is_winner'] = true;
             $result['single_win_amount'] = (float) $slotItem->first_price;
-            $result['win_amount'] = $result['single_win_amount'] * $booking->qty;
+            $result['win_amount'] = $result['single_win_amount'] * $qty;
             $result['first_price_flag'] = true;
-        } elseif (substr($bookingDigitStr, 1, 2) === substr($winningDigitStr, 1, 2)) {
+        } elseif ($firstTwoDigitsMatch) {
             $result['is_winner'] = true;
             $result['single_win_amount'] = (float) $slotItem->second_price;
-            $result['win_amount'] = $result['single_win_amount'] * $booking->qty;
+            $result['win_amount'] = $result['single_win_amount'] * $qty;
             $result['second_price_flag'] = true;
-        } elseif (substr($bookingDigitStr, 2, 1) === substr($winningDigitStr, 2, 1)) {
+        } elseif ($lastDigitMatches) {
             $result['is_winner'] = true;
             $result['single_win_amount'] = (float) $slotItem->third_price;
-            $result['win_amount'] = $result['single_win_amount'] * $booking->qty;
+            $result['win_amount'] = $result['single_win_amount'] * $qty;
             $result['third_price_flag'] = true;
         }
 
@@ -601,16 +544,17 @@ class BookingController extends Controller
     private function getThreeDigitSlotItem(Booking $booking, ?SlotItem $slotItem): ?SlotItem
     {
         // Calculate per-ticket amount
-        $ticketAmount = $booking->qty > 0
-            ? ($booking->amount / $booking->qty)
-            : $booking->amount;
+        $qty = max(1, (int) $booking->qty);
+        $ticketAmount = $qty > 0
+            ? ((float) $booking->amount / $qty)
+            : (float) $booking->amount;
 
         // Reuse the existing SlotItem if it already matches
         if (
             $slotItem &&
             (int) $slotItem->slot_id === (int) $booking->slot_id &&
             (int) $slotItem->title === (int) $booking->title_id &&
-            (float) $slotItem->ticket_amt === (float) $ticketAmount
+            abs((float) $slotItem->ticket_amt - (float) $ticketAmount) < 0.01
         ) {
             return $slotItem;
         }
